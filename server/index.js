@@ -1,35 +1,36 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-// Import models
-const User = require('./models/User');
-const Project = require('./models/Project');
-const Task = require('./models/Task');
-const WorkHour = require('./models/WorkHour');
-const Prerequisite = require('./models/Prerequisite');
-const TaskComment = require('./models/TaskComment');
-
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
 
-const userRoutes = require('./routes/users');
+const userRouter = require('./routes/users');
+const projectRouter = require('./routes/projects');
+const workHourRouter = require('./routes/workHours');
+const prerequisiteRouter = require('./routes/prerequisites');
+const taskCommentRouter = require('./routes/taskComments');
 
 // Use routers
-app.use('/users', userRoutes);
+app.use('/tasks', taskRouter);
+app.use('/users', userRouter);
+app.use('/projects', projectRouter);
+app.use('/workHours', workHourRouter);
+app.use('/prerequisites', prerequisiteRouter);
+app.use('/taskComments', taskCommentRouter);
 
 
 mongoose
-.connect('mongodb+srv://dilpreetbrar:Fairytail1@pmapi.r3dbwo3.mongodb.net/PmAPI?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
-.then(()=>{
-  console.log("connected to mongo db");
+	.connect('mongodb+srv://dilpreetbrar:Fairytail1@pmapi.r3dbwo3.mongodb.net/PmAPI?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+	.then(() => {
+		console.log("connected to mongo db");
 
-  app.listen(port, () => {
-    console.log(`App running on http://localhost:${port}`);
-  });
-})
-.catch((error) => {
-  console.log(error)
-})
+		app.listen(port, () => {
+			console.log(`App running on http://localhost:${port}`);
+		});
+	})
+	.catch((error) => {
+		console.log(error)
+	})
