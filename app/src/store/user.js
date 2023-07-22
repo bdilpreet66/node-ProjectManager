@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Assuming your Express server is running on localhost port 3000
-const API_URL = 'http://localhost:3000';
+const API_URL = 'http://192.168.0.70:3000';
 
 export const createUser = async (email, password, type, hourly_rate, created_by) => {
     try {
@@ -62,7 +62,11 @@ export const listUsers = async (page) => {
 export const searchUsers = async (email) => {
     try {
         const response = await axios.get(`${API_URL}/users/${email}`);
-        return response.data;
+        if (response != null){
+          return [response.data];
+        } else {
+          return []
+        }
     } catch (error) {
         console.error("Error searching users: ", error);
         throw error;
