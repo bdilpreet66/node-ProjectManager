@@ -1,69 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation,useRoute } from '@react-navigation/native';
 import { updateHours, updatePassword, deleteUser } from "../../../store/user";
 import theme from '../../../theme/theme';
 import commonStyles from '../../../theme/commonStyles';
 import { Ionicons } from '@expo/vector-icons';
+import { searchUsers } from "../../../store/user";
+
 
 const EditMemberScreen = () => {
   const route = useRoute();
-  const { user } = route.params;
+  const { email } = route.params;
   const navigation = useNavigation();
-  const [hours, setHours] = useState('');
-  const [password, setPassword] = useState('');
   const [isHoursExpanded, setIsHoursExpanded] = useState(true);
   const [isPasswordExpanded, setIsPasswordExpanded] = useState(false);
+  const [user, setUser] = useState({});
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = await searchUsers(email);
+        if (user != null) {
+          user.password = "";
+          setUser(user); // Assuming that searchUsers returns an array and you want to use the first user found
+        } else {
+          Alert.alert('Error','Error getting user Data')
+          handleCancel()
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [email]);
+
 
   const handleCancel = () => {
     navigation.goBack();
   };
 
   const handleSetHours = async () => {
-    if (!hours) {
+    if (!user.hourly_rate) {
       Alert.alert('Error','Please enter Hourly Rate.');
       return;
     }
 
-    if (!isValidHourlyRate(hours)) {
+    if (!isValidHourlyRate(user.hourly_rate)) {
       Alert.alert('Error','Please enter a valid hourly rate.');
       return;
     }
 
     // If validation passes and user doesn't exist, create user
-    await updateHours(user.email, parseFloat(hours)); // Update the type and hourly_rate as per your requirements
+    await updateHours(user); // Update the type and hourly_rate as per your requirements
 
     // Then redirect the user to the login screen or anywhere you want
     handleCancel();
   };
 
   const handleChangePassword = async () => {
-    if (!password) {
+    if (!user.password) {
       Alert.alert('Error','Please enter password.');
       return;
     }
   
-    if (password.length < 8) {
+    if (user.password.length < 8) {
       Alert.alert('Error','Password should be at least 8 characters long.');
       return;
     }
 
     // If validation passes and user doesn't exist, create user
-    await updatePassword(user.email, password); // Update the type and hourly_rate as per your requirements
+    await updatePassword(user.email, user.password); // Update the type and hourly_rate as per your requirements
 
     // Then redirect the user to the login screen or anywhere you want
     handleCancel();
   };
 
   const handleDeleteUser = async () => {
-    await deleteUser(user.email);
+    try{
+      await deleteUser(user.email);
 
-    handleCancel();
+      handleCancel();
+    } catch (e) {
+      Alert("Error", e)
+    }
   }
   
   const isValidHourlyRate = (hourlyRate) => {
-    // Hourly rate validation logic
-    // You can check if the hourly rate is a valid float greater than or equal to 0
     const rate = parseFloat(hourlyRate);
     return !isNaN(rate) && rate >= 0;
   };
@@ -80,25 +104,42 @@ const EditMemberScreen = () => {
       <View style={styles.scroll}>
         <View>
           <TouchableOpacity style={styles.tabs} onPress={ () => { setIsHoursExpanded(!isHoursExpanded); setIsPasswordExpanded(false); } }>
-              <Text style={styles.tabText}>{isHoursExpanded ? 'Hide Hourly Rate' : 'Set Hourly Rate'}</Text>
+              <Text style={styles.tabText}>{isHoursExpanded ? 'Hide User Info' : 'Set User Info'}</Text>
           </TouchableOpacity>
           {isHoursExpanded && (
             <View>
               <TextInput
                 style={styles.input}
-                placeholder="Hours"
-                value={hours}
-                onChangeText={setHours}
+                placeholder="First Name"
+                value={user.first_name}
+                onChangeText={(text) => setUser({ ...user, first_name: text })}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Last Name"
+                value={user.last_name}
+                onChangeText={(text) => setUser({ ...user, last_name: text })}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Job Title"
+                value={user.job_title}
+                onChangeText={(text) => setUser({ ...user, job_title: text })}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Hourly Rate"
+                value={String(user.hourly_rate)}
+                onChangeText={(rate) => setUser({ ...user, hourly_rate: rate })}
                 keyboardType='decimal-pad'
               />
               <TouchableOpacity style={[commonStyles.button, commonStyles.buttonPrimary, styles.buttonOverride]} onPress={handleSetHours}>
-                <Text style={[commonStyles.buttonText, commonStyles.buttonTextPrimary]}>Save Rate</Text>
+                <Text style={[commonStyles.buttonText, commonStyles.buttonTextPrimary]}>Save Info</Text>
               </TouchableOpacity>
             </View>
           )}
         </View>
 
-        {/* Change Password Section */}
         <View>
           <TouchableOpacity style={styles.tabs} onPress={ () => { setIsHoursExpanded(false); setIsPasswordExpanded(!isPasswordExpanded); } }>
               <Text style={styles.tabText}>{isPasswordExpanded ? 'Hide Password' : 'Change Password'}</Text>
@@ -109,8 +150,8 @@ const EditMemberScreen = () => {
                 style={styles.input}
                 placeholder="New Password"
                 secureTextEntry={true}
-                value={password}
-                onChangeText={setPassword}
+                value={user.password}
+                onChangeText={(text) => setUser({ ...user, password: text })}
               />
               <TouchableOpacity style={[commonStyles.button, commonStyles.buttonPrimary, styles.buttonOverride]} onPress={handleChangePassword}>
                 <Text style={[commonStyles.buttonText, commonStyles.buttonTextPrimary]}>Change Password</Text>

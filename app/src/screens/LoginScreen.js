@@ -36,7 +36,6 @@ const Login = ({navigation}) => {
         // Save user details if rememberMe is true
         await saveUserData({ email: user.data.email, password: user.data.password, type: user.data.type });
 
-        console.log(user)
         if (user.data.type === 'admin') {
           console.log(user.type)
           navigation.navigate('ProjectManagerTabs', { screen: "Dashboard"});

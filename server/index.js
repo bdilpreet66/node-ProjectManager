@@ -9,6 +9,7 @@ app.use(express.json());
 
 const userRouter = require('./routes/users');
 const projectRouter = require('./routes/projects');
+const taskRouter = require('./routes/tasks');
 const workHourRouter = require('./routes/workHours');
 const prerequisiteRouter = require('./routes/prerequisites');
 const taskCommentRouter = require('./routes/taskComments');

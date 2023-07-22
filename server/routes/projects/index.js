@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Project = require('../models/project');
+const Project = require('../../models/Project');
 const Task = require('../../models/Task');
 const WorkHour = require('../../models/WorkHour');
 
@@ -97,11 +97,7 @@ router.get('/totalCost/:projectId', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.toString() });
     }
-}); const mongoose = require('mongoose');
-const Task = require('../../models/Task');
-const Project = require('../../models/Project');
-const User = require('../../models/User');
-const WorkHour = require('../../models/WorkHour');
+});
 
 router.get('/getProjectProgress', async (req, res) => {
     try {
@@ -261,21 +257,22 @@ router.get('/getProjectSummaryByMember', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.toString() });
     }
+});
 
-    router.get('/projects/:id', async (req, res) => {
-        try {
-            const projectId = req.params.id;
-            const project = await Project.findById(projectId);
+router.get('/projects/:id', async (req, res) => {
+    try {
+        const projectId = req.params.id;
+        const project = await Project.findById(projectId);
 
-            if (!project) {
-                return res.status(404).json({ message: 'No project found with this ID.' });
-            }
-
-            res.json(project);
-        } catch (err) {
-            console.error(`Error fetching project with ID ${projectId}:`, err);
-            res.status(500).json({ message: 'Server error.' });
+        if (!project) {
+            return res.status(404).json({ message: 'No project found with this ID.' });
         }
-    });
 
-    module.exports = router;
+        res.json(project);
+    } catch (err) {
+        console.error(`Error fetching project with ID ${projectId}:`, err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+module.exports = router;
