@@ -34,7 +34,7 @@ const Login = ({navigation}) => {
     
     if (user.success) {
         // Save user details if rememberMe is true
-        await saveUserData({ email: user.data.email, password: user.data.password, type: user.data.type });
+        await saveUserData(user.data);
 
         if (user.data.type === 'admin') {
           console.log(user.type)

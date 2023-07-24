@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, FlatList, Dimensions, ScrollView } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import commonStyles from '../../../theme/commonStyles';
-import { updateProjectByID, getTasksByProject, getProjectTotalCost, getProjectDetails } from './../../../store/project';
+import { updateProjectByID, getTasksByProject, getProjectDetails } from './../../../store/project';
 import theme from '../../../theme/theme';
 import { formatDate } from '../../../common/Date';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,30 +10,21 @@ import {statusBadge} from '../../../common/Status';
 
 const ViewProjectScreen = () => {
   const route = useRoute();
-  const { project } = route.params;
-  console.log(project)
+  const { project_id } = route.params;  
   const navigation = useNavigation();
   const [tasks, setTasks] = useState([]);
-  const [totalCost, serTotalCost] = useState('0.00');
 
-  const [projectData, setProjectData] = useState({
-    id: project.id,
-    name: project.name,
-    description: project.description,
-    total_cost: project.total_cost,
-    status: project.status,
-    completion_date: project.completion_date,
-    created_by: project.created_by,
-  });
+  const [projectData, setProjectData] = useState({});
 
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        const taskData = await getTasksByProject(project.id);
-        setTasks(taskData);
+        const projectData = await getProjectDetails(project_id);
+        setProjectData(projectData);
 
-        const totalCost = await getProjectTotalCost(project.id);    
-        serTotalCost(totalCost);
+        const taskData = await getTasksByProject(project_id);
+        setTasks(taskData);
+        
       })();
 
     }, [])
@@ -41,7 +32,7 @@ const ViewProjectScreen = () => {
 
   const handleSave = async () => {
     try {
-        await updateProjectByID(projectData.id, projectData);
+        await updateProjectByID(projectData._id, {name: projectData.name, description: projectData.description});
         Alert.alert('Success', 'Project details saved successfully.');
     } catch (error) {
         console.error('Error saving project data:', error);
@@ -76,7 +67,7 @@ const ViewProjectScreen = () => {
                 value={projectData.description}            
                 multiline
                 numberOfLines={4}
-                style={[commonStyles.input,{ height: 140 }]}
+                style={[commonStyles.input,{ height: 140, textAlignVertical:'top', }]}
                 onChangeText={(text) => setProjectData({ ...projectData, description: text })}
             />                                    
           </View>
@@ -94,7 +85,7 @@ const ViewProjectScreen = () => {
             <Text style={commonStyles.inputLabel}>Total Cost</Text>        
           </View>            
           <View style={[styles.staticContent]}>
-            <Text style={[commonStyles.inputLabel]}>$ {totalCost}</Text>
+            <Text style={[commonStyles.inputLabel]}>$ {parseFloat(projectData.total_cost).toFixed(2)}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Work History',{ projectId: projectData.id } )}>
               <Text style={[commonStyles.link,commonStyles.underline]}>View Logs</Text>
             </TouchableOpacity>            
@@ -111,9 +102,9 @@ const ViewProjectScreen = () => {
         <View style={styles.taskList}>
           {tasks.map(
             (item,key) => (    
-              <TouchableOpacity key={key} style={[styles.listItem]} onPress={() => navigation.navigate('View Task', { project: project, task: item })}>
+              <TouchableOpacity key={key} style={[styles.listItem]} onPress={() => navigation.navigate('View Task', { project: projectData, task: item })}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <View style={{width:'60%'}}><Text>{item.id}# {item.name}</Text></View>
+                  <View style={{width:'60%'}}><Text>{item.name}</Text></View>
                   <View><Text>Due: {formatDate(item.end_date)}</Text></View>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>

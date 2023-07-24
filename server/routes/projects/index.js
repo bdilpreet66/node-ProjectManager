@@ -3,33 +3,55 @@ const router = express.Router();
 const Project = require('../../models/Project');
 const Task = require('../../models/Task');
 const WorkHour = require('../../models/WorkHour');
+const User = require('../../models/User');
+const TaskComment = require('../../models/TaskComment');
 
-// List projects
-router.get('/', async (req, res) => {
-    const { page = 1, searchText } = req.query;
-    const limit = 10;
-    const offset = (page - 1) * limit;
+router.get('/', async (req, res) => { 
+    console.log(req.query);
+   
     try {
-        const query = { created_by: req.user.email };
-        if (searchText) {
-            query.$or = [
-                { name: new RegExp(searchText, 'i') },
-                { description: new RegExp(searchText, 'i') }
-            ];
+        const searchQuery = req.query.searchText; // Get the search query from the request query parameters
+        const sortOrder = req.query.sortOrder === 'true' ? 1 : -1; // Set the sort order based on the request query parameter
+        const statusFilter = req.query.status; // Get the status filter from the request query parameters
+
+        // Initialize the filter with the search conditions
+        let filter = { 
+            $or: [
+                { name: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search
+                { description: { $regex: searchQuery, $options: 'i' } },                
+            ]
+        };
+
+        // If a status filter is provided, add it to the filter
+        if(statusFilter !== "") {
+            filter = {
+                $and: [
+                    filter,
+                    { status: statusFilter }
+                ]
+            }
         }
-        const projects = await Project.find(query).sort({ _id: -1 }).skip(offset).limit(limit);
-        res.send(projects);
-    } catch (err) {
-        console.error('Error listing projects:', err);
-        res.status(500).send({ message: 'Error listing projects' });
+
+        console.log(`Filter:${JSON.stringify(filter)}`);
+        const projects = await Project.find(filter)
+            .sort({ total_cost: Number(sortOrder) })
+            .limit(10)
+            .skip((req.query.page - 1) * 10);
+
+        console.log(projects);            
+
+        res.json(projects);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 
 // Add project
 router.post('/', async (req, res) => {
     try {
-        const { name, description } = req.body;
-        const newProject = new Project({ name, description, created_by: req.user.email });
+        const { name, description } = req.body;        
+        const user = await User.findOne({ email: req.params.email });
+        const newProject = new Project({ name, description, created_by: user });
         const savedProject = await newProject.save();
         res.send(savedProject);
     } catch (err) {
@@ -39,9 +61,12 @@ router.post('/', async (req, res) => {
 });
 
 // Update project
-router.put('/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
+    console.log('This is the API for project update');
+    console.log(req.params.id);
     try {
-        const { id } = req.params;
+        const id = req.params.id;                
+
         const { name, description } = req.body;
         const updatedProject = await Project.findByIdAndUpdate(id, { name, description }, { new: true });
         if (updatedProject) {
@@ -52,50 +77,6 @@ router.put('/:id', async (req, res) => {
     } catch (err) {
         console.error('Error updating project:', err);
         res.status(500).send({ message: 'Error updating project' });
-    }
-});
-
-router.get('/totalCost/:projectId', async (req, res) => {
-    try {
-        const { projectId } = req.params;
-        const tasks = await Task.find({ project_id: projectId });
-
-        let totalCost = 0;
-        for (const task of tasks) {
-            const pipeline = [
-                {
-                    $match: {
-                        task_id: task._id.toString(),
-                        approved: true,
-                    },
-                },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'recorded_by',
-                        foreignField: 'email',
-                        as: 'user',
-                    },
-                },
-                {
-                    $group: {
-                        _id: null,
-                        totalCost: {
-                            $sum: {
-                                $multiply: ['$$ROOT.hours', { $arrayElemAt: ['$user.hourly_rate', 0] }],
-                            },
-                        },
-                    },
-                },
-            ];
-            const result = await WorkHour.aggregate(pipeline);
-            const taskCost = result[0]?.totalCost || 0;
-            totalCost += taskCost;
-        }
-
-        res.json({ totalCost: totalCost.toFixed(2) });
-    } catch (error) {
-        res.status(500).json({ error: error.toString() });
     }
 });
 
@@ -259,15 +240,16 @@ router.get('/getProjectSummaryByMember', async (req, res) => {
     }
 });
 
-router.get('/projects/:id', async (req, res) => {
+router.get('/getbyid/:id', async (req, res) => {    
     try {
         const projectId = req.params.id;
+        console.log(`projectId: ${projectId}`);
         const project = await Project.findById(projectId);
 
         if (!project) {
             return res.status(404).json({ message: 'No project found with this ID.' });
         }
-
+        console.log(`project: ${project}`);
         res.json(project);
     } catch (err) {
         console.error(`Error fetching project with ID ${projectId}:`, err);

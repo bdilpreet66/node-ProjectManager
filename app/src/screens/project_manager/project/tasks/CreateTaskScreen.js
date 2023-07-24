@@ -5,7 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import commonStyles from '../../../../theme/commonStyles';
 import theme from '../../../../theme/theme';
 import { Picker } from '@react-native-picker/picker';
-import { getAvailableUser } from '../../../../store/user';
+import { getAllUsers } from '../../../../store/user';
 import { createTask } from '../../../../store/project';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -27,7 +27,7 @@ const CreateTaskScreen = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const fetchedUsers = await getAvailableUser();
+      const fetchedUsers = await getAllUsers();
       setUsers(fetchedUsers);
     };
 
@@ -55,7 +55,7 @@ const CreateTaskScreen = () => {
       start_date: startDate.toISOString(),
       end_date: endDate.toISOString(),
       assigned_to: assignedTo,
-      project_id: project.id,
+      project_id: project._id,
       status: "pending",
     };
 
@@ -157,13 +157,11 @@ const CreateTaskScreen = () => {
               <Picker
                 style={[commonStyles.input]}
                 selectedValue={assignedTo}
-                onValueChange={(itemValue, itemIndex) =>
-                  setAssignedTo(itemValue)
-                }>
+                onValueChange={setAssignedTo}>
                 {users?.map((user, index) => <Picker.Item key={index} label={user.email} value={user.email} />)}
               </Picker>
             </View>               
-        </View>    
+        </View>
       </ScrollView>
     </View>
   );

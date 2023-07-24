@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'rea
 import { useNavigation } from '@react-navigation/native';
 import { clearUserData } from "../store/creds"
 import commonStyles from '../theme/commonStyles';
+import theme from '../theme/theme';
 
 const LogoutScreen = () => {
   const navigation = useNavigation();
@@ -18,7 +19,7 @@ const LogoutScreen = () => {
     <View style={styles.container}>
       <Image source={require('../../assets/Logo.png')} style={commonStyles.logoLabel} resizeMode='contain' />
       <Image source={require('../../assets/logout.png')} style={styles.splashImage} resizeMode='contain' />
-      <TouchableOpacity style={[commonStyles.button, commonStyles.buttonError, styles.button]} onPress={handleLogout}>
+      <TouchableOpacity style={[commonStyles.button, styles.button]} onPress={handleLogout}>
         <Text style={[commonStyles.buttonText, commonStyles.buttonTexError]}>Log Out</Text>
       </TouchableOpacity>
     </View>
@@ -39,6 +40,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '90%',
+    backgroundColor: theme.colors.pink,
   }
 });
 

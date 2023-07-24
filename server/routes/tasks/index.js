@@ -2,11 +2,14 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../../models/Task');
 const Project = require('../../models/Project');
+const User = require('../../models/User');
+const { use } = require('../users');
 
 // Create a task
 router.post('/', async (req, res) => {
-    try {
-        const task = new Task(req.body);
+    try {        
+        const user = await User.findOne({ email: req.body.assigned_to });        
+        const task = new Task({...req.body, assigned_to:user._id });
         const savedTask = await task.save();
         res.send(savedTask);
     } catch (error) {
@@ -17,9 +20,27 @@ router.post('/', async (req, res) => {
 
 // Get tasks by project
 router.get('/project/:projectId', async (req, res) => {
-    try {
-        const tasks = await Task.find({ project_id: req.params.projectId });
-        res.send(tasks);
+    try {        
+        const tasks = await Task.find({ project_id: req.params.projectId })
+            .populate('assigned_to'); // Populate the 'assigned_to' field with the entire User document
+
+        // Modify the tasks array to include the first name and last name of the assigned user
+        const tasksWithAssignedUser = tasks.map((task) => {
+            const assignedUser = task.assigned_to;
+            return {
+                id: task._id,
+                name: task.name,
+                description: task.description,
+                start_date: task.start_date,
+                end_date: task.end_date,
+                assigned_to: assignedUser ? `${assignedUser.first_name} ${assignedUser.last_name}` : task.assigned_to,
+                is_active: task.is_active,
+                status: task.status,
+                project_id: task.project_id,
+            };
+        });
+
+        res.send(tasksWithAssignedUser);
     } catch (error) {
         console.error('Error getting tasks by project:', error);
         res.status(500).send({ message: 'Error getting tasks by project' });

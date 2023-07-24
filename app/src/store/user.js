@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Assuming your Express server is running on localhost port 3000
-const API_URL = 'http://192.168.0.76:3000';
+const API_URL = 'http://192.168.0.18:3000';
 
 export const createUser = async (data) => {
     try {
@@ -52,6 +52,17 @@ export const listUsers = async (page, query) => {
         const response = await axios.get(`${API_URL}/users`, {
             params: { page, query }, // Include the query parameter in the request
         });
+        console.log(response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error listing users:', error);
+        throw error;
+    }
+};
+
+export const getAllUsers = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/users/list`);
         console.log(response.data);
         return response.data;
     } catch (error) {

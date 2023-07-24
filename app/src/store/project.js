@@ -2,15 +2,15 @@ import { getUserData } from './creds';
 
 import axios from 'axios';
 
-const api = axios.create({ baseURL: 'http://192.168.0.76:3000' });
+const api = axios.create({ baseURL: 'http://192.168.0.18:3000' });
 
-export const listProjects = async (page, searchText) => {
-    try {
-        const response = await api.get('/projects', { params: { page, searchText } });
+export const listProjects = async (page, searchText, sortOrder, status) => {
+    try {        
+        const response = await api.get('/projects', { params: { page, searchText, sortOrder, status } });
         return response.data;
     } catch (error) {
-        console.error('Error listing projects:', error);
-        throw error;
+        console.error('Error listing projects:', error);        
+        return [];
     }
 };
 
@@ -24,12 +24,11 @@ export const addProject = async (name, description) => {
     }
 };
 
-export const updateProjectByID = async (id, { name, description }) => {
-    try {
-        const response = await api.put(`/projects/${id}`, { name, description });
+export const updateProjectByID = async (id, data ) => {
+    try {        
+        const response = await api.put(`/projects/update/${id}`, data);
         return response.data;
-    } catch (error) {
-        console.error('Error updating project:', error);
+    } catch (error) {        
         throw error;
     }
 };
@@ -88,7 +87,7 @@ export const getTasksByProject = async (projectId) => {
 // Function to get work history by project id
 export async function getWorkHistoryByProjectId(projectId) {
     try {
-        const response = await axios.get(`/tasks/work-history/${projectId}`);
+        const response = await api.get(`/tasks/work-history/${projectId}`);
         return response.data;
     } catch (error) {
         console.error('Error getting work history by project:', error);
@@ -98,7 +97,7 @@ export async function getWorkHistoryByProjectId(projectId) {
 // Function to create a prerequisite
 export async function createPrerequisite(data) {
     try {
-        const response = await axios.post('/prerequisites', data);
+        const response = await api.post('/prerequisites', data);
         return response.data;
     } catch (error) {
         console.error('Error creating prerequisite:', error);
@@ -108,7 +107,7 @@ export async function createPrerequisite(data) {
 // Function to list prerequisites for a task
 export async function listPrerequisites(taskId) {
     try {
-        const response = await axios.get(`/tasks/${taskId}/prerequisites`);
+        const response = await api.get(`/tasks/${taskId}/prerequisites`);
         return response.data;
     } catch (error) {
         console.error('Error listing prerequisites:', error);
@@ -118,7 +117,7 @@ export async function listPrerequisites(taskId) {
 // Function to list incomplete prerequisites for a task
 export async function listIncompletePrerequisites(taskId) {
     try {
-        const response = await axios.get(`/tasks/${taskId}/prerequisites/incomplete`);
+        const response = await api.get(`/tasks/${taskId}/prerequisites/incomplete`);
         return response.data;
     } catch (error) {
         console.error('Error listing incomplete prerequisites:', error);
@@ -130,7 +129,7 @@ export async function listIncompletePrerequisites(taskId) {
 
 export const deletePrerequisite = async (taskId, prerequisiteTaskId) => {
     try {
-        const response = await axios.delete(`/prerequisites/${taskId}/${prerequisiteTaskId}`);
+        const response = await api.delete(`/prerequisites/${taskId}/${prerequisiteTaskId}`);
         console.log(response.data.message);
     } catch (error) {
         console.error('Error deleting prerequisite:', error);
@@ -140,16 +139,20 @@ export const deletePrerequisite = async (taskId, prerequisiteTaskId) => {
 
 export const getTaskComments = async (taskId) => {
     try {
-        const response = await axios.get(`/taskComments/${taskId}`);
-        console.log(response.data);
+        const response = await api.get(`/taskComments/${taskId}`);
+        return response.data;        
     } catch (error) {
         console.error('Error fetching task comments:', error);
     }
 };
 
-export const addTaskComment = async (comment, taskId, userEmail) => {
+export const addTaskComment = async (comment, taskId) => {
+    const user = await getUserData();
+    console.log('comment:' + comment);
+    console.log(taskId);
+    console.log(user);
     try {
-        const response = await axios.post(`/taskComments`, { task_id: taskId, comment, commented_by: userEmail });
+        const response = await api.post(`/taskComments`, { task_id: taskId, comment, commented_by: user._id });
         console.log(response.data.message);
     } catch (error) {
         console.error('Error inserting task comment:', error);
@@ -160,7 +163,7 @@ export const addTaskComment = async (comment, taskId, userEmail) => {
 
 export const listWorkHours = async (taskId) => {
     try {
-        const response = await axios.get(`/workHours/${taskId}`);
+        const response = await api.get(`/workHours/${taskId}`);
         console.log(response.data);
     } catch (error) {
         console.error('Error fetching work hours:', error);
@@ -171,7 +174,7 @@ export const listWorkHours = async (taskId) => {
 
 export const getTasksByMember = async (memberEmail) => {
     try {
-        const response = await axios.get(`/tasks/byMember/${memberEmail}`);
+        const response = await api.get(`/tasks/byMember/${memberEmail}`);
         console.log(response.data);
     } catch (error) {
         console.error('Error fetching tasks by member:', error);
@@ -181,7 +184,7 @@ export const getTasksByMember = async (memberEmail) => {
 
 export const createWorkedHour = async (workedHour, email) => {
     try {
-        const response = await axios.post(`/workHours`, { ...workedHour, email });
+        const response = await api.post(`/workHours`, { ...workedHour, email });
         console.log(response.data.message);
     } catch (error) {
         console.error('Error creating worked hour:', error);
@@ -191,7 +194,7 @@ export const createWorkedHour = async (workedHour, email) => {
 
 export const calculateWorkedHour = async (taskId) => {
     try {
-        const response = await axios.get(`/workHours/totalCost/${taskId}`);
+        const response = await api.get(`/workHours/totalCost/${taskId}`);
         return response.data.totalCost;
     } catch (error) {
         console.error('Error calculating total worked hours cost:', error);
@@ -199,21 +202,9 @@ export const calculateWorkedHour = async (taskId) => {
     }
 };
 
-
-export const getProjectTotalCost = async (projectId) => {
-    try {
-        const response = await axios.get(`/projects/totalCost/${projectId}`);
-        return response.data.totalCost;
-    } catch (error) {
-        console.error('Error getting project total cost:', error);
-        return 0.00;
-    }
-};
-
-
 export const approveWorkHour = async (workHourId) => {
     try {
-        const response = await axios.patch(`/workHours/approve/${workHourId}`);
+        const response = await api.patch(`/workHours/approve/${workHourId}`);
         console.log(response.data.message);
     } catch (error) {
         console.error('Error approving work hour:', error);
@@ -222,7 +213,7 @@ export const approveWorkHour = async (workHourId) => {
 
 export const disapproveWorkHour = async (workHourId) => {
     try {
-        const response = await axios.patch(`/workHours/disapprove/${workHourId}`);
+        const response = await api.patch(`/workHours/disapprove/${workHourId}`);
         console.log(response.data.message);
     } catch (error) {
         console.error('Error disapproving work hour:', error);
@@ -233,7 +224,7 @@ export const disapproveWorkHour = async (workHourId) => {
 
 export const getProjectProgress = async () => {
     try {
-        const response = await axios.get('/projects/getProjectProgress');
+        const response = await api.get('/projects/getProjectProgress');
         return response.data;
     } catch (error) {
         console.error('Error getting project progress:', error);
@@ -244,7 +235,7 @@ export const getProjectProgress = async () => {
 
 export const getInprogressOverdueTasks = async () => {
     try {
-        const response = await axios.get('/projects/getInprogressOverdueTasks');
+        const response = await api.get('/projects/getInprogressOverdueTasks');
         return response.data;
     } catch (error) {
         console.error('Error getting in-progress and overdue tasks:', error);
@@ -255,7 +246,7 @@ export const getInprogressOverdueTasks = async () => {
 
 export const getProjectSummary = async () => {
     try {
-        const response = await axios.get('/projects/getProjectSummary');
+        const response = await api.get('/projects/getProjectSummary');
         return response.data;
     } catch (error) {
         console.error('Error getting project summary:', error);
@@ -266,7 +257,7 @@ export const getProjectSummary = async () => {
 
 export const getProjectSummaryByMember = async () => {
     try {
-        const response = await axios.get('/projects/getProjectSummaryByMember');
+        const response = await api.get('/projects/getProjectSummaryByMember');
         return response.data;
     } catch (error) {
         console.error('Error getting member summary:', error);
@@ -277,7 +268,8 @@ export const getProjectSummaryByMember = async () => {
 
 export const getProjectDetails = async (projectId) => {
     try {
-        const response = await axios.get(`/projects/${projectId}`);
+        console.log(`Thsi is the project id: ${projectId}`);        
+        const response = await api.get(`/projects/getbyid/${projectId}`);
         return response.data;
     } catch (error) {
         console.error(`Error getting project details for ID ${projectId}:`, error);
