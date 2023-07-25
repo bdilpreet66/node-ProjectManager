@@ -6,15 +6,29 @@ import commonStyles from '../../../../theme/commonStyles';
 import theme from '../../../../theme/theme';
 import { Picker } from '@react-native-picker/picker';
 import { getAllUsers } from '../../../../store/user';
-import { updateTask, listPrerequisite, addTaskComment, getTaskComments, calculateWorkedHour } from '../../../../store/project';
+import { updateTask, listPrerequisite, addTaskComment, getTaskComments, calculateWorkedHour, getTaskById } from '../../../../store/project';
 import { Ionicons } from '@expo/vector-icons';
 import { statusBadge } from '../../../../common/Status';
 
 const ViewTaskScreen = () => {
 	const route = useRoute();
-	const { task } = route.params;
+	const { taskid } = route.params;
+	console.log('taskid: ',taskid);
+	const [task, setTask] = useState({
+		_id: taskid,
+		name: "",
+		description: "",
+		start_date: new Date(),
+		end_date: new Date(),
+		assigned_to: "",
+		is_active: true,
+		status: "pending",
+		project_id: "",
+	});
+	console.log(task)
 	const navigation = useNavigation();
-	
+	console.log(task);
+
 	const [id, _] = useState(task.id);
 	const [name, setName] = useState(task.name);
 	const [description, setDescription] = useState(task.description);
@@ -27,7 +41,7 @@ const ViewTaskScreen = () => {
 	const [showEndPicker, setShowEndPicker] = useState(false);
 	const [users, setUsers] = useState([]);
 	const [preReq, setRreReq] = useState([]);
-	const [totalCost, serTotalCost] = useState('0.00');
+	const [totalCost, setTotalCost] = useState('0.00');
 
 	const [comment, setComment] = useState();
 	const [comments, setComments] = useState([]);
@@ -35,7 +49,7 @@ const ViewTaskScreen = () => {
 	useFocusEffect(
 		useCallback(() => {
 			const fetchPreReq = async () => {
-				const results = await listPrerequisite(task.id);
+				const results = await listPrerequisite(taskid);
 				setRreReq(results);
 			};
 
@@ -45,62 +59,65 @@ const ViewTaskScreen = () => {
 			};
 
 			const fetchComments = async () => {
-				const results = await getTaskComments(task.id);
+				const results = await getTaskComments(taskid);
 				setComments(results);
 			};
 
 			const fetchTotalCost = async () => {
-				const results = await calculateWorkedHour(task.id);
-				serTotalCost(results);
+				const results = await calculateWorkedHour(taskid);
+				setTotalCost(results);
 			};
 
+			const fetchTaskDetails = async () => {
+				try{
+					console.log(task)
+					const result = await getTaskById(taskid);
+					if(result){
+						setTask({ ...result, end_date: new Date(result.end_date), start_date: new Date(result.start_date) });
+					}
+				} catch {
+					Alert.alert("Error", "Unable To get the Task.");
+					navigation.goBack();
+				}
+			};
+
+			fetchTaskDetails();
 			fetchUsers();
 			fetchPreReq();
 			fetchComments();
 			fetchTotalCost();
-		}, [task])
+
+		}, [])
 	);
 
 	const handleUpdateTask = async () => {
 		// Validate that start date is before end date
-		if (!name || !description || !startDate || !endDate) {
+		if (!task.name || !task.description) {
 			// Handle case when email is empty
 			Alert.alert('Error', 'Please complete the form before submit.');
 			return;
 		}
 
-		if (startDate > endDate) {
+		if (task.startDate > task.endDate) {
 			Alert.alert('Error', 'Start date should be before end date.');
 			return;
 		}
 
-		console.log("GO: ")
-		// Create a new task object
-		const data = {
-			id: id,
-			name: name,
-			description: description,
-			start_date: startDate.toISOString(),
-			end_date: endDate.toISOString(),
-			assigned_to: assignedTo,
-			status: status,
-			project_id: task.project_id,
-		};
 
 		try {
 			// Create the task in the database
-			await updateTask(data);
+			await updateTask(task);
 			Alert.alert("Success", "Task has been updated.");
 		} catch (error) {
 			// Handle or display error if something goes wrong
 			console.error(error);
-			Alert.alert('Error', 'There was an error while creating the task.');
+			Alert.alert('Error', 'There was an error while updating the task.');
 		}
 	}
 
 	const handleAddComment = async () => {
-		await addTaskComment(comment, id);
-		const results = await getTaskComments(task.id);
+		await addTaskComment(comment, task._id);
+		const results = await getTaskComments(task._id);
 		setComments(results);
 		setComment('');
 	}
@@ -108,14 +125,14 @@ const ViewTaskScreen = () => {
 	const onStartDateChange = (selectedDate) => {
 		setShowStartPicker(false);
 		if (selectedDate) {
-			setStartDate(selectedDate);
+			setTask ({ ...task, start_date: new Date(selectedDate) });
 		}
 	};
 
 	const onEndDateChange = (selectedDate) => {
 		setShowEndPicker(false);
 		if (selectedDate) {
-			setEndDate(selectedDate);
+			setTask ({ ...task, end_date: new Date(selectedDate) });
 		}
 	};
 
@@ -139,8 +156,8 @@ const ViewTaskScreen = () => {
 						<Text style={commonStyles.inputLabel}>Name</Text>
 						<TextInput
 							placeholder="Name"
-							value={name}
-							onChangeText={setName}
+							value={task.name}
+							onChangeText={ (val) => setTask({ ...task, name: val }) }
 							style={commonStyles.input}
 						/>
 					</View>
@@ -148,11 +165,11 @@ const ViewTaskScreen = () => {
 						<Text style={commonStyles.inputLabel}>Description</Text>
 						<TextInput
 							placeholder="Description"
-							value={description}
-							onChangeText={setDescription}
+							value={task.description}
+							onChangeText={ (val) => setTask({ ...task, description: val }) }
 							multiline
 							numberOfLines={4}
-							style={[commonStyles.input, { height: 140 }]}
+							style={[commonStyles.input, { height: 140,textAlignVertical:'top' }]}
 						/>
 					</View>
 					<View style={styles.inputContainer}>
@@ -160,13 +177,13 @@ const ViewTaskScreen = () => {
 						<TouchableOpacity onPress={() => setShowStartPicker(true)}>
 							<TextInput
 								placeholder="Start Date"
-								value={startDate.toLocaleString()}
+								value={task.start_date.toLocaleString()}
 								editable={false}
 								style={[commonStyles.input]}
 							/>
 							{showStartPicker && (
 								<DateTimePicker
-									value={startDate}
+									value={task.start_date}
 									mode="datetime"
 									display="default"
 									onChange={(event, selectedDate) => onStartDateChange(selectedDate)} // Update this line
@@ -179,13 +196,13 @@ const ViewTaskScreen = () => {
 						<TouchableOpacity onPress={() => setShowEndPicker(true)}>
 							<TextInput
 								placeholder="End Date"
-								value={endDate.toLocaleString()}
+								value={task.end_date.toLocaleString()}
 								editable={false}
 								style={[commonStyles.input]}
 							/>
 							{showEndPicker && (
 								<DateTimePicker
-									value={endDate}
+									value={task.end_date}
 									mode="datetime"
 									display="default"
 									onChange={(event, selectedDate) => onEndDateChange(selectedDate)} // Update this line
@@ -198,11 +215,9 @@ const ViewTaskScreen = () => {
 						<View style={styles.border}>
 							<Picker
 								style={[commonStyles.input]}
-								selectedValue={assignedTo}
-								onValueChange={(itemValue, itemIndex) =>
-									setAssignedTo(itemValue)
-								}>
-								{users?.map((user, index) => <Picker.Item key={user.email} label={user.email} value={user.email} />)}
+								selectedValue={task.assigned_to}
+								onValueChange={ (val) => setTask({ ...task, assigned_to: val }) }>
+								{users?.map((user, index) => <Picker.Item key={user.email} label={user.email} value={user._id} />)}
 							</Picker>
 						</View>
 					</View>
@@ -211,10 +226,8 @@ const ViewTaskScreen = () => {
 						<View style={styles.border}>
 							<Picker
 								style={[commonStyles.input]}
-								selectedValue={status}
-								onValueChange={(itemValue, itemIndex) =>
-									setStatus(itemValue)
-								}>
+								selectedValue={task.status}
+								onValueChange={ (val) => setTask({ ...task, status: val }) }>
 								<Picker.Item key="pending" label="Pending" value="pending" />
 								<Picker.Item key="in-progress" label="In Progress" value="in-progress" />
 								<Picker.Item key="completed" label="Completed" value="completed" />
@@ -255,7 +268,7 @@ const ViewTaskScreen = () => {
 							placeholder="Write a comment"
 							value={comment}
 							onChangeText={setComment}
-							style={[commonStyles.input]}
+							style={[commonStyles.input,{textAlignVertical:'top'}]}
 							multiline
 							numberOfLines={4}
 						/>
@@ -269,12 +282,13 @@ const ViewTaskScreen = () => {
 						</View>
 						<View>
 							{comments.map((item) =>
-								<>
-									<View style={[styles.commentItem]} key={item._id}>
+								<View key={item._id}>
+									<View style={[styles.commentItem]}>
 										<Text>{item.comment}</Text>
 										<Text style={[styles.commentAudit]}>{item.commented_by} | {item.comment_date}</Text>
 									</View>
-								</>)}
+								</View>)
+							}
 						</View>
 					</View>
 					<View>

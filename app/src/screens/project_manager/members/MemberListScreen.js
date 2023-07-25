@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TextInput, FlatList, ActivityIndicator, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TextInput, FlatList, ActivityIndicator, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { listUsers } from '../../../store/user'; // Assuming you have the user functions in a file named 'user.js'
 import commonStyles from '../../../theme/commonStyles';
@@ -14,8 +14,6 @@ const MemberListScreen = () => {
 	const [loading, setLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(true);
 	const [page, setPage] = useState(1);
-
-	const screenWidth = Dimensions.get('window').width - 40;
 
 	useFocusEffect(
 		useCallback(() => {
@@ -50,7 +48,7 @@ const MemberListScreen = () => {
 	};
 
 	const renderItem = ({ item }) => (
-		<TouchableOpacity style={[{ width: screenWidth }, styles.listItem]} onPress={() => navigation.navigate('Edit Member', { email: item.email })}>
+		<TouchableOpacity style={[{ width: '100%' }, styles.listItem]} onPress={() => navigation.navigate('Edit Member', { email: item.email })}>
 			<View style={{
 				flexDirection: 'row',
 				justifyContent: 'space-between',
@@ -105,6 +103,7 @@ const MemberListScreen = () => {
 				onEndReached={() => { loadMembers() }} // Load more members when reaching the end of the list
 				onEndReachedThreshold={0.1} // Trigger the onEndReached callback when 10% of the list is reached
 				ListFooterComponent={renderFooter} // Show loading indicator at the bottom while loading more members
+				style={[styles.listContainer]}
 			/>
 		</View>
 	);
@@ -155,6 +154,9 @@ const styles = StyleSheet.create({
 		width: 100,
 		textAlign: 'center',
 		marginTop: 5,
+	},
+	listContainer: {
+		width: '100%'
 	},
 });
 

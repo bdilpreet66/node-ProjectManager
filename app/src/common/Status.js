@@ -19,7 +19,8 @@ export const getStatus = (status) => {
 export const statusBadge = (status, end) => {    
     let badgeClass = commonStyles.badge;
     let styles = [badgeClass];
-
+    console.log('end date',(new Date(end)));
+    console.log('current',new Date());
     if ((new Date(end)) > (new Date())){    
       if (status === 'pending') {
         styles.push(commonStyles.badgeWarning);
@@ -40,6 +41,6 @@ export const statusBadge = (status, end) => {
     }
     
     return (
-      <Text style={[styles,{ textAlign: 'center',width:100 }]}>{status}</Text>
+      <Text style={[styles,{ textAlign: 'center',width:100, marginTop:5,}]}>{status}</Text>
     )
   }

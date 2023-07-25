@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
 		padding: 10,
 	},
 	icon: {
-		width: 20,   // Or any other dimensions you want
+		width: 20,   
 		height: 16,
 	},
 	linkContainer: {

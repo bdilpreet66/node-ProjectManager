@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'rea
 import commonStyles from '../../theme/commonStyles';
 import theme from '../../theme/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { getInprogressOverdueTasks, getProjectSummaryByMember} from '../../store/project';
+import { getInprogressOverdueTasks, getProjectSummaryByMember } from '../../store/project';
 import { formatDate } from '../../common/Date';
 import { statusBadge } from '../../common/Status';
 
@@ -26,104 +26,104 @@ const DashboardScreen = () => {
       })();
     }, [])
   );
-  
+
   return (
     <View style={commonStyles.container}>
-        <Image source={require('../../../assets/Logo.png')} style={commonStyles.logoLabel} resizeMode='contain'/>
-        <ScrollView> 
-          <View style={[styles.container]}>
-            <View style={[styles.column,styles.column1]}>
-              <View style={[styles.group, styles.completed]}>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>Completed</Text>
-                  <Text style={styles.white}>
-                    <Ionicons name="checkbox-outline" size={18} />
-                  </Text>
-                </View>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>Projects</Text>
-                <Text style={styles.white}>{ summary.completed_projects}</Text>
-                </View>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>Tasks</Text>
-                <Text style={styles.white}>{ summary.completed_tasks}</Text>
-                </View>
+      <Image source={require('../../../assets/Logo.png')} style={commonStyles.logoLabel} resizeMode='contain' />
+      <ScrollView style={{width:'100%'}}>
+        <View style={[styles.container]}>
+          <View style={[styles.column, styles.column1]}>
+            <View style={[styles.group, styles.completed]}>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>Completed</Text>
+                <Text style={styles.white}>
+                  <Ionicons name="checkbox-outline" size={18} />
+                </Text>
               </View>
-              <View style={[styles.group, styles.inprogress]}>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>In-Progress Tasks</Text>
-                  <Text style={styles.white}><Ionicons name="timer-outline" size={18} /></Text>
-                </View>
-                <View style={[styles.item]}>
-                <Text style={styles.white}>{ summary.inprogress_tasks }</Text>
-                  <Text style={styles.white}></Text>
-                </View>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>Projects</Text>
+                <Text style={styles.white}>{summary.completed_projects}</Text>
               </View>
-              <View style={[styles.group, styles.totalCost]}>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>Total Income</Text>
-                  <Text style={styles.white}><Ionicons name="cash-outline" size={ 18 } /></Text>
-                </View>
-                <View style={[styles.item]}>
-                <Text style={styles.white}>$ { parseFloat(summary.total_cost).toFixed(2)}</Text>
-                  <Text style={styles.white}></Text>
-                </View>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>Tasks</Text>
+                <Text style={styles.white}>{summary.completed_tasks}</Text>
               </View>
             </View>
-            <View style={[styles.column,styles.column2]}>
-              <View style={[styles.group, styles.overdue]}>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>Overdue Tasks</Text>
-                  <Text style={styles.white}><Ionicons name="alert-circle-outline" size={ 18 } /></Text>
-                </View>
-                <View style={[styles.item]}>
-                <Text style={styles.white}>{ summary.overdue_tasks}</Text>
-                  <Text style={styles.white}></Text>
-                </View>
+            <View style={[styles.group, styles.inprogress]}>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>In-Progress Tasks</Text>
+                <Text style={styles.white}><Ionicons name="timer-outline" size={18} /></Text>
               </View>
-              <View style={[styles.group, styles.pending]}>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>Pending Tasks</Text>
-                  <Text style={styles.white}><Ionicons name="hourglass-outline" size={ 18 } /></Text>
-                </View>
-                <View style={[styles.item]}>
-                  <Text style={styles.white}>{ summary.pending_tasks}</Text>
-                  <Text style={styles.white}></Text>
-                </View>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>{summary.inprogress_tasks}</Text>
+                <Text style={styles.white}></Text>
               </View>
-              <View style={[styles.group, styles.default]}>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>Total</Text>
-                  <Text style={styles.white}><Ionicons name="list-outline" size={ 18 } /></Text>
-                </View>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>Projects</Text>
-                  <Text style={styles.white}>{ summary.total_projects }</Text>
-                </View>
-                <View style={[styles.item]}>
-                  <Text style={ styles.white }>Tasks</Text>
-                  <Text style={styles.white}>{ summary.total_tasks }</Text>
-                </View>
+            </View>
+            <View style={[styles.group, styles.totalCost]}>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>Total Income</Text>
+                <Text style={styles.white}><Ionicons name="cash-outline" size={18} /></Text>
+              </View>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>$ {parseFloat(summary.total_cost).toFixed(2)}</Text>
+                <Text style={styles.white}></Text>
               </View>
             </View>
           </View>
-          <View style={{ width: '100%' }}>
-            <Text style={ [styles.title, commonStyles.bold] }>My Tasks</Text>
-            {tasks.map((item, index) => (
-              <View key={index} style={styles.itemContainer}>
-                <View style={{ width: '60%',marginRight:10 }}>
-                  <Text style={styles.itemText}>{ item.id }#. {item.name}</Text>
-                  {statusBadge(item.status,item.end_date)}
-                </View>
-                <View style={{ width: '40%' }}>
-                  <Text style={[styles.itemText]}>Due - {formatDate(item.end_date)}</Text>
-                  <Text style={[styles.itemText, {color:theme.colors.grey}]}>{ item.project_name }</Text>
-                </View>
+          <View style={[styles.column, styles.column2]}>
+            <View style={[styles.group, styles.overdue]}>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>Overdue Tasks</Text>
+                <Text style={styles.white}><Ionicons name="alert-circle-outline" size={18} /></Text>
               </View>
-            ))}
+              <View style={[styles.item]}>
+                <Text style={styles.white}>{summary.overdue_tasks}</Text>
+                <Text style={styles.white}></Text>
+              </View>
+            </View>
+            <View style={[styles.group, styles.pending]}>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>Pending Tasks</Text>
+                <Text style={styles.white}><Ionicons name="hourglass-outline" size={18} /></Text>
+              </View>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>{summary.pending_tasks}</Text>
+                <Text style={styles.white}></Text>
+              </View>
+            </View>
+            <View style={[styles.group, styles.default]}>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>Total</Text>
+                <Text style={styles.white}><Ionicons name="list-outline" size={18} /></Text>
+              </View>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>Projects</Text>
+                <Text style={styles.white}>{summary.total_projects}</Text>
+              </View>
+              <View style={[styles.item]}>
+                <Text style={styles.white}>Tasks</Text>
+                <Text style={styles.white}>{summary.total_tasks}</Text>
+              </View>
+            </View>
           </View>
-        </ScrollView>
-    </View>  
+        </View>
+        <View style={{ width: '100%' }}>
+          <Text style={[styles.title, commonStyles.bold]}>My Tasks</Text>
+          {tasks.map((item, index) => (
+            <View key={index} style={styles.itemContainer}>
+              <View style={{ width: '60%', marginRight: 10 }}>
+                <Text style={styles.itemText}>{item.name}</Text>
+                {statusBadge(item.status, item.end_date)}
+              </View>
+              <View style={{ width: '40%' }}>
+                <Text style={[styles.itemText]}>Due - {formatDate(item.end_date)}</Text>
+                <Text style={[styles.itemText, { color: theme.colors.grey }]}>{item.project_name}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 

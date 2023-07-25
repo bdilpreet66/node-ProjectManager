@@ -62,11 +62,8 @@ router.post('/', async (req, res) => {
 
 // Update project
 router.put('/update/:id', async (req, res) => {
-    console.log('This is the API for project update');
-    console.log(req.params.id);
     try {
-        const id = req.params.id;                
-
+        const id = req.params.id;
         const { name, description } = req.body;
         const updatedProject = await Project.findByIdAndUpdate(id, { name, description }, { new: true });
         if (updatedProject) {
@@ -79,6 +76,7 @@ router.put('/update/:id', async (req, res) => {
         res.status(500).send({ message: 'Error updating project' });
     }
 });
+
 
 router.get('/getProjectProgress', async (req, res) => {
     try {
@@ -104,13 +102,12 @@ router.get('/getProjectProgress', async (req, res) => {
     }
 });
 
-router.get('/getInprogressOverdueTasks', async (req, res) => {
-    try {
-        const { email } = req.user;  // Assumes user data is attached to request object by authentication middleware
 
+router.get('/getInprogressOverdueTasks/:assigned_to', async (req, res) => {
+    try {
         const tasks = await Task.find({
             status: { $nin: ['completed'] },
-            assigned_to: email,
+            assigned_to: req.params.assigned_to,  // Use req.params.assigned_to here
         })
             .sort({ end_date: 1 })
             .lean()
@@ -179,21 +176,19 @@ router.get('/getProjectSummary', async (req, res) => {
     }
 });
 
-router.get('/getProjectSummaryByMember', async (req, res) => {
+router.get('/getProjectSummaryByMember/:assigned_to', async (req, res) => {
     try {
-        const { email } = req.user;  // Assumes user data is attached to request object by authentication middleware
-
-        const completedProjects = await Project.countDocuments({ 'tasks.assigned_to': email, status: 'completed' });
-        const completedTasks = await Task.countDocuments({ assigned_to: email, status: 'completed' });
-        const inProgressTasks = await Task.countDocuments({ assigned_to: email, status: 'in-progress' });
+        const completedProjects = await Project.countDocuments({ 'tasks.assigned_to': req.params.assigned_to, status: 'completed' });
+        const completedTasks = await Task.countDocuments({ assigned_to: req.params.assigned_to, status: 'completed' });
+        const inProgressTasks = await Task.countDocuments({ assigned_to: req.params.assigned_to, status: 'in-progress' });
         const overdueTasks = await Task.countDocuments({
-            assigned_to: email,
+            assigned_to: req.params.assigned_to,
             status: { $ne: 'completed' },
             end_date: { $lt: new Date() },
         });
-        const pendingTasks = await Task.countDocuments({ assigned_to: email, status: 'pending' });
-        const totalProjects = await Project.countDocuments({ 'tasks.assigned_to': email });
-        const totalTasks = await Task.countDocuments({ assigned_to: email });
+        const pendingTasks = await Task.countDocuments({ assigned_to: req.params.assigned_to, status: 'pending' });
+        const totalProjects = await Project.countDocuments({ 'tasks.assigned_to': req.params.assigned_to });
+        const totalTasks = await Task.countDocuments({ assigned_to: req.params.assigned_to });
 
         // Calculate total cost using aggregation
         const totalCostResult = await WorkHour.aggregate([
@@ -208,7 +203,7 @@ router.get('/getProjectSummaryByMember', async (req, res) => {
             {
                 $match: {
                     approved: true,
-                    'user.email': email,
+                    'user._id': req.params.assigned_to,
                 },
             },
             {
