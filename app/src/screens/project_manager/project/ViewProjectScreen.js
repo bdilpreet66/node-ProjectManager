@@ -102,7 +102,7 @@ const ViewProjectScreen = () => {
         <View style={styles.taskList}>
           {tasks.map(
             (item,key) => (    
-              <TouchableOpacity key={key} style={[styles.listItem]} onPress={() => navigation.navigate('View Task', { project: projectData, task: item })}>
+              <TouchableOpacity key={key} style={[styles.listItem]} onPress={() => navigation.navigate('View Task', { task_id: item.id })}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <View style={{width:'60%'}}><Text>{item.name}</Text></View>
                   <View><Text>Due: {formatDate(item.end_date)}</Text></View>

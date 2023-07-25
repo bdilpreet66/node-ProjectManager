@@ -2,7 +2,7 @@ import { getUserData } from './creds';
 
 import axios from 'axios';
 
-const api = axios.create({ baseURL: 'http://192.168.0.18:3000' });
+const api = axios.create({ baseURL: 'http://192.168.0.70:3000' });
 
 export const listProjects = async (page, searchText, sortOrder, status) => {
     try {        
@@ -100,13 +100,21 @@ export async function createPrerequisite(data) {
         const response = await api.post('/prerequisites', data);
         return response.data;
     } catch (error) {
-        console.error('Error creating prerequisite:', error);
+        console.log(error)
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            throw new Error(error.response.data.message);
+        }
+
+        // Throw a new Error with a 500 status code
+        throw new Error('Internal server error');
     }
 }
 
 // Function to list prerequisites for a task
 export async function listPrerequisites(taskId) {
     try {
+        console.log(taskId)
         const response = await api.get(`/tasks/${taskId}/prerequisites`);
         return response.data;
     } catch (error) {

@@ -21,7 +21,7 @@ const PrerequisiteTasksScreen = () => {
 );
 
   const fetchTasks = async () => {
-      const fetchedTasks = await getAvailableTasks(project.id, task.id);
+      const fetchedTasks = await getAvailableTasks(project, task);
       setTasks(fetchedTasks);
       setFilteredTasks(fetchedTasks);
   };
@@ -34,9 +34,9 @@ const PrerequisiteTasksScreen = () => {
   const toggleSwitch = async (preReq, value) => {
     try {
         if (value) {
-            await createPrerequisite(task.id, preReq.id);
+            await createPrerequisite({task_id: task, prerequisite_task_id: preReq});
         } else {
-            await deletePrerequisite(task.id, preReq.id);
+            await deletePrerequisite(task, preReq);
         }
     } catch (error) {
       Alert.alert('Error',error.message);
@@ -49,7 +49,7 @@ const PrerequisiteTasksScreen = () => {
     <View style={[styles.itemContainer]} >
         <Text>{item.name}</Text>
         <Switch 
-            onValueChange={(value) => toggleSwitch(item, value)}
+            onValueChange={(value) => toggleSwitch(item.id, value)}
             value={item.isPreReq ? true : false}
         />
     </View>
@@ -69,7 +69,10 @@ const PrerequisiteTasksScreen = () => {
             style={commonStyles.input}
             placeholder="Search tasks"
             value={search}
-            onChangeText={setSearch}
+            onChangeText={(val) => {
+              setSearch(val);
+              filterTasks(val);
+            }}
         />
         <FlatList
             data={filteredTasks}

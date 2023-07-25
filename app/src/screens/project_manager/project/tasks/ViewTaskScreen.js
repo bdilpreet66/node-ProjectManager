@@ -12,10 +12,9 @@ import { statusBadge } from '../../../../common/Status';
 
 const ViewTaskScreen = () => {
 	const route = useRoute();
-	const { project, task } = route.params;
+	const { task } = route.params;
 	const navigation = useNavigation();
-	console.log(task);
-
+	
 	const [id, _] = useState(task.id);
 	const [name, setName] = useState(task.name);
 	const [description, setDescription] = useState(task.description);
@@ -244,7 +243,7 @@ const ViewTaskScreen = () => {
 						<View style={[styles.prereqContainer]}>
 							{preReq.map((preitem, index) => <Text key={index} style={[commonStyles.badge, commonStyles.badgeGrey, styles.badge]}>#{preitem.prerequisite_task_id}</Text>)}
 						</View>
-						<TouchableOpacity onPress={() => navigation.navigate('Pre Req Task', { project, task })}>
+						<TouchableOpacity onPress={() => navigation.navigate('Pre Req Task', { project: task.project_id, task: task.id })}>
 							<Text style={[commonStyles.link, commonStyles.underline]}>Update Prerequisites</Text>
 						</TouchableOpacity>
 					</View>
