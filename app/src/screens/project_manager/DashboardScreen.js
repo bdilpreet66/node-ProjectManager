@@ -30,7 +30,7 @@ const DashboardScreen = () => {
   return (
     <View style={commonStyles.container}>
         <Image source={require('../../../assets/Logo.png')} style={commonStyles.logoLabel} resizeMode='contain'/>
-        <ScrollView>
+        <ScrollView style={{width:'100%',paddingHorizontal:20,}}>
           <View style={[styles.container]}>
             <View style={[styles.column,styles.column1]}>
               <View style={[styles.group, styles.completed]}>
@@ -115,7 +115,7 @@ const DashboardScreen = () => {
               <View key={index} style={styles.itemContainer}>
                 <View style={{ width: '40%' }}>
                   <Text style={styles.itemText}>{item.name}</Text>
-                  <Text style={[styles.itemText, { color: theme.colors.grey, marginTop: 8 }]}>Due - {formatDate(item.due_date)}</Text>
+                  <Text style={[styles.itemText, { color: theme.colors.grey, marginTop: 8 }]}>Due - {formatDate(item.completion_date)}</Text>
                 </View>
                 <View style={{ width: '30%' }}>
                   <Text style={[styles.itemText, commonStyles.badge, getStatus(item.status), { textAlign: 'center' }]}>

@@ -55,8 +55,9 @@ export const getAvailableTasks = async (projectId, currentTaskId) => {
 };
 
 export const updateTask = async (task) => {
+    console.log('umabot ba tioy');
     try {
-        const response = await api.put(`/tasks/${task.id}`, task);
+        const response = await api.put(`/tasks/${task._id}`, task);
         return response.data;
     } catch (error) {
         console.error('Error updating task:', error);
@@ -148,9 +149,6 @@ export const getTaskComments = async (taskId) => {
 
 export const addTaskComment = async (comment, taskId) => {
     const user = await getUserData();
-    console.log('comment:' + comment);
-    console.log(taskId);
-    console.log(user);
     try {
         const response = await api.post(`/taskComments`, { task_id: taskId, comment, commented_by: user._id });
         console.log(response.data.message);
@@ -172,9 +170,10 @@ export const listWorkHours = async (taskId) => {
 
 
 
-export const getTasksByMember = async (memberEmail) => {
+export const getTasksByMember = async () => {
     try {
-        const response = await api.get(`/tasks/byMember/${memberEmail}`);
+        const user = await getUserData();
+        const response = await api.get(`/tasks/byMember/${user._id}`);
         console.log(response.data);
     } catch (error) {
         console.error('Error fetching tasks by member:', error);
@@ -235,7 +234,8 @@ export const getProjectProgress = async () => {
 
 export const getInprogressOverdueTasks = async () => {
     try {
-        const response = await api.get('/projects/getInprogressOverdueTasks');
+        const user = await getUserData();
+        const response = await api.get(`/projects/getInprogressOverdueTasks/${user._id}`);
         return response.data;
     } catch (error) {
         console.error('Error getting in-progress and overdue tasks:', error);
@@ -257,7 +257,9 @@ export const getProjectSummary = async () => {
 
 export const getProjectSummaryByMember = async () => {
     try {
-        const response = await api.get('/projects/getProjectSummaryByMember');
+        const user = await getUserData();
+        const response = await api.get(`/projects/getProjectSummaryByMember/${user._id}`);
+        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error('Error getting member summary:', error);
@@ -273,6 +275,17 @@ export const getProjectDetails = async (projectId) => {
         return response.data;
     } catch (error) {
         console.error(`Error getting project details for ID ${projectId}:`, error);
+        return {};
+    }
+};
+
+
+export const getTaskById = async (taskId) => {
+    try {      
+        const response = await api.get(`/tasks/${taskId}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error getting task details for ID ${taskId}:`, error);
         return {};
     }
 };

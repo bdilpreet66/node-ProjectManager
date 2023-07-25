@@ -48,9 +48,20 @@ router.get('/project/:projectId', async (req, res) => {
 });
 
 // Update a task
+
 router.put('/:id', async (req, res) => {
+    console.log(req.body)
     try {
-        const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        // Find user by email
+        const user = await User.findOne({ _id: req.body.assigned_to });
+        if (!user) {
+            return res.status(404).send({ message: 'User not found' });
+        }
+
+        // Assign user._id to assigned_to
+        req.body.assigned_to = user._id;
+        console.log(req.body)
+        const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body);
         if (updatedTask) {
             const tasks = await Task.find({ project_id: updatedTask.project_id });
             let allCompleted = true;
@@ -181,15 +192,37 @@ router.get('/:taskId/prerequisites/incomplete', async (req, res) => {
     }
 });
 
-router.get('/byMember/:memberEmail', async (req, res) => {
+router.get('/byMember/:assigned_to', async (req, res) => {    
     try {
-        const { memberEmail } = req.params;
-        const tasks = await Task.find({ assigned_to: memberEmail }).populate('project_id', 'name');
+        const tasks = await Task.find({
+            assigned_to: req.params.assigned_to,  // Use req.params.assigned_to here
+        })
+            .sort({ end_date: 1 })
+            .lean()
+            .exec();
         res.json(tasks);
     } catch (error) {
         res.status(500).json({ error: error.toString() });
     }
 });
 
+
+//Get task details by id
+router.get('/:id', async (req, res) => {
+    try {
+        const taskId = req.params.id;
+        console.log(`taskId: ${taskId}`);
+        const task = await Task.findById(taskId);
+
+        if (!task) {
+            return res.status(404).json({ message: 'No task found with this ID.' });
+        }
+        console.log(`task: ${task}`);
+        res.json(task);
+    } catch (err) {
+        console.error(`Error fetching task with ID ${taskId}:`, err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
 
 module.exports = router;

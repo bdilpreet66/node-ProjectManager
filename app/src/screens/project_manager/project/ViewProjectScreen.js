@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, FlatList, Dimensions, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import commonStyles from '../../../theme/commonStyles';
 import { updateProjectByID, getTasksByProject, getProjectDetails } from './../../../store/project';
@@ -102,7 +102,7 @@ const ViewProjectScreen = () => {
         <View style={styles.taskList}>
           {tasks.map(
             (item,key) => (    
-              <TouchableOpacity key={key} style={[styles.listItem]} onPress={() => navigation.navigate('View Task', { project: projectData, task: item })}>
+              <TouchableOpacity key={key} style={[styles.listItem]} onPress={() => navigation.navigate('View Task', { taskid: item.id })}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <View style={{width:'60%'}}><Text>{item.name}</Text></View>
                   <View><Text>Due: {formatDate(item.end_date)}</Text></View>
