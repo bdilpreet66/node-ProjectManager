@@ -2,7 +2,7 @@ import { getUserData } from './creds';
 
 import axios from 'axios';
 
-const api = axios.create({ baseURL: 'http://192.168.0.70:3000' });
+const api = axios.create({ baseURL: 'http://192.168.0.18:3000' });
 
 export const listProjects = async (page, searchText, sortOrder, status) => {
     try {        
@@ -45,6 +45,7 @@ export const createTask = async (task) => {
 };
 
 export const getAvailableTasks = async (projectId, currentTaskId) => {
+    console.log(`/tasks/available/${projectId}/${currentTaskId}`)
     try {
         const response = await api.get(`/tasks/available/${projectId}/${currentTaskId}`);
         return response.data;
