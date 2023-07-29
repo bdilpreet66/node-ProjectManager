@@ -24,7 +24,7 @@ app.use('/taskComments', taskCommentRouter);
 
 
 mongoose
-	.connect('mongodb+srv://dilpreetbrar:Fairytail1@pmapi.r3dbwo3.mongodb.net/PmAPI?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+	.connect('mongodb+srv://dilpreetbrar:74QfzhxEZs5IsfcR@pmapi.r3dbwo3.mongodb.net/PmAPI?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
 	.then(() => {
 		console.log("connected to mongo db");
 
