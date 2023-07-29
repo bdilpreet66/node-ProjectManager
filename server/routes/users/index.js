@@ -98,7 +98,6 @@ router.get('/:email', async (req, res) => {
 router.post('/validate', async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email });
-        console.log(user)
         if (user && user.password === req.body.password) {
             res.json({ success: true, data: user, message: 'User login successful.' });
         } else {

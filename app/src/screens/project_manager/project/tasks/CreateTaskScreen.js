@@ -46,7 +46,6 @@ const CreateTaskScreen = () => {
       Alert.alert('Error','Start date should be before end date.');
       return;
     }
-    console.log("go")
 
     // Create a new task object
     const task = {

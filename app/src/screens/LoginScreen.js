@@ -37,10 +37,8 @@ const Login = ({navigation}) => {
         await saveUserData(user.data);
 
         if (user.data.type === 'admin') {
-          console.log(user.type)
           navigation.navigate('ProjectManagerTabs', { screen: "Dashboard"});
         } else {
-          console.log("incorrect")
           navigation.navigate('MemberTabs', { screen: "Dashboard"});
         }
     } else {

@@ -6,14 +6,13 @@ import commonStyles from '../../../../theme/commonStyles';
 import theme from '../../../../theme/theme';
 import { Picker } from '@react-native-picker/picker';
 import { getAllUsers } from '../../../../store/user';
-import { updateTask, listPrerequisite, addTaskComment, getTaskComments, calculateWorkedHour, getTaskById } from '../../../../store/project';
+import { updateTask, listPrerequisites, addTaskComment, getTaskComments, calculateWorkedHour, getTaskById } from '../../../../store/project';
 import { Ionicons } from '@expo/vector-icons';
 import { statusBadge } from '../../../../common/Status';
 
 const ViewTaskScreen = () => {
 	const route = useRoute();
 	const { taskid } = route.params;
-	console.log('taskid: ',taskid);
 	const [task, setTask] = useState({
 		_id: taskid,
 		name: "",
@@ -25,7 +24,6 @@ const ViewTaskScreen = () => {
 		status: "pending",
 		project_id: "",
 	});
-	console.log(task)
 	const navigation = useNavigation();
 
 	const [showStartPicker, setShowStartPicker] = useState(false);
@@ -40,28 +38,43 @@ const ViewTaskScreen = () => {
 	useFocusEffect(
 		useCallback(() => {
 			const fetchPreReq = async () => {
-				const results = await listPrerequisite(taskid);
-				setRreReq(results);
+				try{
+					const results = await listPrerequisites(taskid);
+					setRreReq(results);
+				} catch(error) {
+					console.log(error)
+				}
 			};
 
 			const fetchUsers = async () => {
-				const results = await getAllUsers();
-				setUsers(results);
+				try{
+					const results = await getAllUsers();
+					setUsers(results);
+				} catch(error) {
+					console.log(error)
+				}
 			};
 
 			const fetchComments = async () => {
-				const results = await getTaskComments(taskid);
-				setComments(results);
+				try{
+					const results = await getTaskComments(taskid);
+					setComments(results);
+				} catch(error) {
+					console.log(error)
+				}
 			};
 
 			const fetchTotalCost = async () => {
-				const results = await calculateWorkedHour(taskid);
-				setTotalCost(results);
+				try{
+					const results = await calculateWorkedHour(taskid);
+					setTotalCost(results);
+				} catch(error) {
+					console.log(error)
+				}
 			};
 
 			const fetchTaskDetails = async () => {
 				try{
-					console.log(task)
 					const result = await getTaskById(taskid);
 					if(result){
 						setTask({ ...result, end_date: new Date(result.end_date), start_date: new Date(result.start_date) });
@@ -245,7 +258,7 @@ const ViewTaskScreen = () => {
 					</View>
 					<View style={[styles.staticContent]}>
 						<View style={[styles.prereqContainer]}>
-							{preReq.map((preitem, index) => <Text key={index} style={[commonStyles.badge, commonStyles.badgeGrey, styles.badge]}>#{preitem.prerequisite_task_id}</Text>)}
+							{preReq.map((preitem, index) => <Text key={index} style={[commonStyles.badge, commonStyles.badgeGrey, styles.badge]}>{preitem}</Text>)}
 						</View>
 						<TouchableOpacity onPress={() => navigation.navigate('Pre Req Task', { project: task.project_id , task: task._id })}>
 							<Text style={[commonStyles.link, commonStyles.underline]}>Update Prerequisites</Text>

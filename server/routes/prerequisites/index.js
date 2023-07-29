@@ -5,13 +5,13 @@ const Task = require('../../models/Task');
 
 // Recursive function to check for indirect dependencies
 async function isIndirectDependency(taskId, prerequisiteTaskId) {
-	const prerequisites = await Prerequisite.find({ task: prerequisiteTaskId });
+	const prerequisites = await Prerequisite.find({ task_id: prerequisiteTaskId });
 
 	for (let prerequisite of prerequisites) {
-		if (prerequisite.prerequisite_task.toString() === taskId.toString()) {
+		if (prerequisite.prerequisite_task_id.toString() === taskId.toString()) {
 			return true;
 		} else {
-			const indirect = await isIndirectDependency(taskId, prerequisite.prerequisite_task);
+			const indirect = await isIndirectDependency(taskId, prerequisite.prerequisite_task_id);
 			if (indirect) {
 				return true;
 			}
@@ -24,14 +24,16 @@ async function isIndirectDependency(taskId, prerequisiteTaskId) {
 // New route to create a prerequisite
 router.post('/', async (req, res) => {
 	try {
-		if (await isIndirectDependency(req.body.task, req.body.prerequisite_task)) {
-			throw new Error(`Task ID #${req.body.task} is an indirect dependency of Task ID #${req.body.prerequisite_task}.`);
+		if (await isIndirectDependency(req.body.task_id, req.body.prerequisite_task_id)) {
+			res.status(500).send({ message: `Task ID #${req.body.task_id} is an indirect dependency of Task ID #${req.body.prerequisite_task_id}.`});
+		} else {
+
+			const prerequisite = new Prerequisite(req.body);
+			const savedPrerequisite = await prerequisite.save();
+
+			res.send(savedPrerequisite);
+
 		}
-
-		const prerequisite = new Prerequisite(req.body);
-		const savedPrerequisite = await prerequisite.save();
-
-		res.send(savedPrerequisite);
 	} catch (error) {
 		console.error('Error creating prerequisite:', error);
 		res.status(500).send({ message: 'Error creating prerequisite' });

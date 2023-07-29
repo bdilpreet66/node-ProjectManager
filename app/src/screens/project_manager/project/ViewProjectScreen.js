@@ -76,9 +76,13 @@ const ViewProjectScreen = () => {
           </View>
           <View style={[styles.staticContent]}>
             {projectData.status === 'pending' ?
-              <Text style={[commonStyles.inputLabel,commonStyles.badge,commonStyles.badgeWarning,styles.status]}>Incomplete</Text>
+              <Text style={[commonStyles.inputLabel,commonStyles.badge,commonStyles.badgeWarning,styles.status]}>Pending</Text>
             :
-              <Text style={[commonStyles.inputLabel,]}>Completed</Text>
+              (projectData.status === 'in-progress' ?
+                <Text style={[commonStyles.inputLabel,commonStyles.badge,commonStyles.badgeInfo,styles.status]}>In-progress</Text>
+              :
+                <Text style={[commonStyles.inputLabel,commonStyles.badge,commonStyles.badgeSuccess,styles.status]}>Completed</Text>
+              )
             }        
           </View>            
           <View style={styles.inputContainer}>
