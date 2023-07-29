@@ -4,15 +4,15 @@ import { Text } from "react-native";
 export const getStatus = (status) => {
     switch(status) {
         case 'overdue': 
-        return commonStyles.badgeError;
+          return commonStyles.badgeError;
         case 'completed':
-        return commonStyles.badgeSucess;
+          return commonStyles.badgeSuccess;
         case 'pending':
-        return commonStyles.badgeWarning;
+          return commonStyles.badgeWarning;
         case 'in-progress':
-        return commonStyles.badgeInfo;
+          return commonStyles.badgeInfo;
         default:
-        return commonStyles.badgeDefault;
+          return commonStyles.badgeDefault;
     }
 }
 

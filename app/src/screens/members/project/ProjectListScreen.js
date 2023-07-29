@@ -80,7 +80,7 @@ const ProjectListScreen = () => {
 				alignItems: 'center',
 			}}>
 				<View>{statusBadge(item.status, item.end_date)}</View>
-				<Text style={{ color: theme.colors.grey }}>{item.project_name}</Text>
+				<Text style={{ color: theme.colors.grey }}>{item.project_id.name}</Text>
 			</View>
 		</TouchableOpacity>
 	);

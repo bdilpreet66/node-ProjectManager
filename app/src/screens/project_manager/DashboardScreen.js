@@ -107,12 +107,9 @@ const DashboardScreen = () => {
               </View>
             </View>
           </View>
-          <View style={{ width: '100%' }}>
-            <TouchableOpacity onPress={() => navigation.navigate('ProjectManagerTabs',{screen:'Projects'})}>
-              <Text style={[commonStyles.link, commonStyles.underline, commonStyles.bold,{textAlign:'right',marginBottom:15,}]}>View All Projects</Text>
-            </TouchableOpacity>
+          <View style={{ width: '100%' }}>            
             {projects.map((item, index) => (
-              <View key={index} style={styles.itemContainer}>
+              <TouchableOpacity key={index} style={styles.itemContainer} onPress={() => navigation.navigate('View Project', { project_id: item._id, back_screen: 'PmDashboard' })}>
                 <View style={{ width: '40%' }}>
                   <Text style={styles.itemText}>{item.name}</Text>
                   <Text style={[styles.itemText, { color: theme.colors.grey, marginTop: 8 }]}>Due - {formatDate(item.completion_date)}</Text>
@@ -123,9 +120,9 @@ const DashboardScreen = () => {
                   </Text>
                 </View>
                 <View style={{ width: '20%', alignItems: 'center' }}>
-                  <Text style={styles.itemText}>{(item.progress * 100).toFixed(0)}%</Text>
+                  <Text style={styles.itemText}>{(item.progress).toFixed(0)}%</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </ScrollView>

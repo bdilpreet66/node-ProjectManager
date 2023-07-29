@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'rea
 import commonStyles from '../../theme/commonStyles';
 import theme from '../../theme/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { getInprogressOverdueTasks, getProjectSummaryByMember } from '../../store/project';
+import { getInprogressOverdueTasks, getProjectSummaryByMember, listIncompletePrerequisites } from '../../store/project';
 import { formatDate } from '../../common/Date';
 import { statusBadge } from '../../common/Status';
 
@@ -26,6 +26,19 @@ const DashboardScreen = () => {
       })();
     }, [])
   );
+
+  const handleTaskView = async (task) => {
+    console.log("handleTaskView");
+    const prerequisitesData = await listIncompletePrerequisites(task._id);
+    console.log("prerequisitesData",prerequisitesData);
+    if (prerequisitesData.length > 0) {
+        Alert.alert('Message', 'This task is not allowed to view as it has an incomplete pre-requisite.');
+    }
+    else {
+        //navigation.navigate('View Task', {task})
+        navigation.navigate('View Task', { taskid: task._id })
+    }        
+}
 
   return (
     <View style={commonStyles.container}>
@@ -109,17 +122,17 @@ const DashboardScreen = () => {
         </View>
         <View style={{ width: '100%' }}>
           <Text style={[styles.title, commonStyles.bold]}>My Tasks</Text>
-          {tasks.map((item, index) => (
-            <View key={index} style={styles.itemContainer}>
-              <View style={{ width: '60%', marginRight: 10 }}>
-                <Text style={styles.itemText}>{item.name}</Text>
-                {statusBadge(item.status, item.end_date)}
-              </View>
-              <View style={{ width: '40%' }}>
-                <Text style={[styles.itemText]}>Due - {formatDate(item.end_date)}</Text>
-                <Text style={[styles.itemText, { color: theme.colors.grey }]}>{item.project_name}</Text>
-              </View>
-            </View>
+          {tasks.map((item, index) => (            
+              <TouchableOpacity key={index} style={styles.itemContainer} onPress={() => handleTaskView(item)}>
+                <View style={{ width: '60%', marginRight: 10 }}>
+                  <Text style={styles.itemText}>{item.name}</Text>
+                  {statusBadge(item.status, item.end_date)}
+                </View>
+                <View style={{ width: '40%' }}>
+                  <Text style={[styles.itemText]}>Due - {formatDate(item.end_date)}</Text>
+                  <Text style={[styles.itemText, { color: theme.colors.grey }]}>{item.project_id.name}</Text>
+                </View>
+              </TouchableOpacity>            
           ))}
         </View>
       </ScrollView>

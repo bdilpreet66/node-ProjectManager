@@ -181,17 +181,16 @@ router.get('/:taskId/prerequisites', async (req, res) => {
     }
 });
 
-// New route to list incomplete prerequisites for a task
 router.get('/:taskId/prerequisites/incomplete', async (req, res) => {
     try {
-        const prerequisites = await Prerequisite.find({ task: req.params.taskId })
+        const prerequisites = await Prerequisite.find({ task_id: req.params.taskId })
             .populate({
-                path: 'prerequisite_task',
+                path: 'prerequisite_task_id',
                 match: { status: { $ne: 'completed' } }
             });
 
         // Filter out nulls from population
-        const incompletePrerequisites = prerequisites.filter(p => p.prerequisite_task !== null);
+        const incompletePrerequisites = prerequisites.filter(p => p.prerequisite_task_id !== null);
 
         res.send(incompletePrerequisites);
     } catch (error) {
@@ -199,7 +198,6 @@ router.get('/:taskId/prerequisites/incomplete', async (req, res) => {
         res.status(500).send({ message: 'Error listing incomplete prerequisites' });
     }
 });
-
 
 router.get('/byMember/:assigned_to', async (req, res) => {
     console.log('Assigned To',req.params.assigned_to);
@@ -230,6 +228,7 @@ router.get('/byMember/:assigned_to', async (req, res) => {
         console.log(`Filter: ${JSON.stringify(filter)}`);
 
         const tasks = await Task.find(filter)
+            .populate('project_id', 'name') // populates the 'name' field from the 'Project' model
             .limit(10)
             .skip((req.query.page - 1) * 10);
 
@@ -240,6 +239,7 @@ router.get('/byMember/:assigned_to', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
 
 
 //Get task details by id

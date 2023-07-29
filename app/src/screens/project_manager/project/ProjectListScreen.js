@@ -99,7 +99,7 @@ const ProjectListScreen = () => {
 	};
 
 	const renderItem = ({ item }) => (
-		<TouchableOpacity style={[styles.listItem]} onPress={() => navigation.navigate('View Project', { project_id: item._id })}>
+		<TouchableOpacity style={[styles.listItem]} onPress={() => navigation.navigate('View Project', { project_id: item._id, back_screen: 'Project List' })}>
 			<View style={styles.rowContainer}>
 				<Text>{item.name}</Text>
 				<Text>{item.total_cost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</Text>

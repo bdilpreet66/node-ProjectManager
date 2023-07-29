@@ -63,7 +63,7 @@ function ProjectManagerTabs() {
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen
         name="Dashboard"
-        component={PmDashboardScreen}
+        component={ProjectManagerDashboardStack}
         options={PmDashboardScreenOptions}
       />
       <Tab.Screen
@@ -88,7 +88,7 @@ function ProjectManagerTabs() {
 function MemberTabs() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
-        <Tab.Screen name="Dashboard" component={MDashboardScreen} options={PmDashboardScreenOptions} />
+        <Tab.Screen name="Dashboard" component={MemberDashboardStack} options={PmDashboardScreenOptions} />
         <Tab.Screen name="Tasks" component={MemberProjectStack} options={ProjectManagerProjectStackOptions} />
         <Tab.Screen name="Logout" component={LogoutScreen} options={LogoutScreenOptions} />
     </Tab.Navigator>
@@ -117,6 +117,24 @@ function MemberProjectStack() {
       <Stack.Screen name="View Task" component={MViewTaskScreen} />
       <Stack.Screen name="View Worked Hours" component={MWorkedHourList} />
       <Stack.Screen name="Add Worked Hours" component={MAddWorkedHours} />
+    </Stack.Navigator>
+  );
+}
+
+function MemberDashboardStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Project List" component={MDashboardScreen} />
+      <Stack.Screen name="View Task" component={MViewTaskScreen} />      
+    </Stack.Navigator>
+  );
+}
+
+function ProjectManagerDashboardStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="PmDashboard" component={PmDashboardScreen} /> 
+      <Stack.Screen name="View Project" component={PmViewProjectScreen} />
     </Stack.Navigator>
   );
 }

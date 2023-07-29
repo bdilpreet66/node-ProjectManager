@@ -110,7 +110,6 @@ router.get('/getProjectProgress', async (req, res) => {
     }
 });
 
-
 router.get('/getInprogressOverdueTasks/:assigned_to', async (req, res) => {
     try {
         const tasks = await Task.find({
@@ -118,14 +117,16 @@ router.get('/getInprogressOverdueTasks/:assigned_to', async (req, res) => {
             assigned_to: req.params.assigned_to,  // Use req.params.assigned_to here
         })
             .sort({ end_date: 1 })
+            .populate('project_id', 'name') // This line populates the 'name' field from the 'Project' model referenced by 'project_id'
             .lean()
             .exec();
-
+        console.log('Tasks',tasks);
         res.json(tasks);
     } catch (error) {
         res.status(500).json({ error: error.toString() });
     }
 });
+
 
 router.get('/getProjectSummary', async (req, res) => {
     try {
@@ -186,7 +187,8 @@ router.get('/getProjectSummary', async (req, res) => {
 
 router.get('/getProjectSummaryByMember/:assigned_to', async (req, res) => {
     try {
-        const completedProjects = await Project.countDocuments({ 'tasks.assigned_to': req.params.assigned_to, status: 'completed' });
+        const projectIds = await Task.find({ assigned_to: req.params.assigned_to }).distinct('project_id');
+        const completedProjects = await Project.countDocuments({ _id: { $in: projectIds }, status: 'completed' });        
         const completedTasks = await Task.countDocuments({ assigned_to: req.params.assigned_to, status: 'completed' });
         const inProgressTasks = await Task.countDocuments({ assigned_to: req.params.assigned_to, status: 'in-progress' });
         const overdueTasks = await Task.countDocuments({
@@ -194,8 +196,8 @@ router.get('/getProjectSummaryByMember/:assigned_to', async (req, res) => {
             status: { $ne: 'completed' },
             end_date: { $lt: new Date() },
         });
-        const pendingTasks = await Task.countDocuments({ assigned_to: req.params.assigned_to, status: 'pending' });
-        const totalProjects = await Project.countDocuments({ 'tasks.assigned_to': req.params.assigned_to });
+        const pendingTasks = await Task.countDocuments({ assigned_to: req.params.assigned_to, status: 'pending' });        
+        const totalProjects = await Task.find({ assigned_to: req.params.assigned_to }).distinct('project_id').then(data => data.length);
         const totalTasks = await Task.countDocuments({ assigned_to: req.params.assigned_to });
 
         // Calculate total cost using aggregation

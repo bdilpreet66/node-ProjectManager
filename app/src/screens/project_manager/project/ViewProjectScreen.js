@@ -7,10 +7,11 @@ import theme from '../../../theme/theme';
 import { formatDate } from '../../../common/Date';
 import { Ionicons } from '@expo/vector-icons';
 import {statusBadge} from '../../../common/Status';
+//import { param } from '../../../../../server/routes/tasks';
 
 const ViewProjectScreen = () => {
   const route = useRoute();
-  const { project_id } = route.params;  
+  const { project_id, back_screen } = route.params;  
   const navigation = useNavigation();
   const [tasks, setTasks] = useState([]);
 
@@ -43,7 +44,7 @@ const ViewProjectScreen = () => {
   return (
     <View style={styles.scroll}>      
       <View style={styles.ctaContainer}> 
-        <TouchableOpacity onPress={() => navigation.navigate('Project List')}>          
+        <TouchableOpacity onPress={() => navigation.navigate(back_screen)}>          
           <Ionicons name="close-outline" style={{color:'#D85151'}} size={36} />
         </TouchableOpacity>      
         <Text style={[commonStyles.labelTopNavHeading,commonStyles.bold]}>Project Details</Text>
