@@ -6,7 +6,7 @@ const User = require('../../models/User');
 router.get('/:taskId', async (req, res) => {
     try {
         const { taskId } = req.params;
-        const taskComments = await TaskComment.find({ task_id: taskId }).sort({ id: -1 }).populate('commented_by');
+        const taskComments = await TaskComment.find({ task_id: taskId }).sort({ comment_date: -1 }).populate('commented_by');
         const formattedComments = taskComments.map((comment) => {
             let user = comment.commented_by;
             user = user.first_name

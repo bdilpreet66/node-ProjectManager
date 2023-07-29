@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TextInput, FlatList, ActivityIndicator, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, FlatList, ActivityIndicator, Image, TouchableOpacity, StyleSheet, Dimensions, Modal, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { getTasksByMember, listIncompletePrerequisite } from '../../../store/project'; // Assuming you have the user functions in a file named 'user.js'
+import { getTasksByMember, listIncompletePrerequisites } from '../../../store/project'; // Assuming you have the user functions in a file named 'user.js'
 import commonStyles from '../../../theme/commonStyles';
 import { formatDate } from '../../../common/Date'
 import { statusBadge } from '../../../common/Status';
@@ -51,15 +51,18 @@ const ProjectListScreen = () => {
 		loadTasks(1);
 	};
 
-	const handleTaskView = async (task) => {
-		const prerequisitesData = await listIncompletePrerequisite(task.id);
-		if (prerequisitesData.length > 0) {
-			Alert.alert('Message', 'This task is not allowed to view as it has an incomplete pre-requisite.');
-		}
-		else {
-			navigation.navigate('View Task', { task })
-		}
-	}
+    const handleTaskView = async (task) => {
+        console.log("handleTaskView");
+        const prerequisitesData = await listIncompletePrerequisites(task._id);
+        console.log("prerequisitesData",prerequisitesData);
+        if (prerequisitesData.length > 0) {
+            Alert.alert('Message', 'This task is not allowed to view as it has an incomplete pre-requisite.');
+        }
+        else {
+            //navigation.navigate('View Task', {task})
+            navigation.navigate('View Task', { taskid: task._id })
+        }        
+    }
 
 	const renderItem = ({ item }) => (
 		<TouchableOpacity style={[styles.listItem]} onPress={() => handleTaskView(item)}>
