@@ -27,15 +27,17 @@ const ProjectListScreen = () => {
   );
   
   const loadTasks = async (cur_page = page) => {
+    console.log('loadTasks');
     if (loading || !hasMore) return;
     setLoading(true);
   
     try {
       const newTasks = await getTasksByMember(cur_page, searchText); // Fetch tasks from the first page
-      console.log(newTasks)
+      console.log('NewTasks', newTasks);
       setTasks((prevTasks) => [...prevTasks, ...newTasks]);
-      setPage(cur_page + 1);
-      setHasMore(newTasks.length > 0);
+      //setHasMore(newTasks.length > 0);
+      setHasMore(false);
+      setPage(cur_page + 1);      
     } catch (error) {
       setHasMore(false);
     }
@@ -44,6 +46,7 @@ const ProjectListScreen = () => {
   };
 
   const handleSearch = async () => {
+    console.log('handle search');
     // Reset pagination and load tasks based on the search text
     setPage(1);
     setTasks([]);
@@ -68,7 +71,7 @@ const ProjectListScreen = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
       }}>
-        <Text>{ item.id}#. {item.name}</Text>
+        <Text>{item.name}</Text>
         <Text>Due - { formatDate(item.end_date) }</Text>
       </View>
       <View style={{
@@ -102,15 +105,17 @@ const ProjectListScreen = () => {
           <Ionicons name="search" size={24} color="black" />
         </TouchableOpacity>
       </View>
+      {
       <FlatList
         data={tasks}
         style={{width:"100%"}}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()} // Assuming each member has a unique ID
-        onEndReached={loadTasks} // Load more tasks when reaching the end of the list
-        onEndReachedThreshold={0.1} // Trigger the onEndReached callback when 10% of the list is reached
+        keyExtractor={(item) => item._id.toString()} // Assuming each member has a unique ID
+        //onEndReached={loadTasks} // Load more tasks when reaching the end of the list
+        //onEndReachedThreshold={0.1} // Trigger the onEndReached callback when 10% of the list is reached
         ListFooterComponent={renderFooter} // Show loading indicator at the bottom while loading more tasks
       />
+      }
     </View>
   );
 };

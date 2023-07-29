@@ -7,9 +7,9 @@ const { use } = require('../users');
 
 // Create a task
 router.post('/', async (req, res) => {
-    try {        
-        const user = await User.findOne({ email: req.body.assigned_to });        
-        const task = new Task({...req.body, assigned_to:user._id });
+    try {
+        const user = await User.findOne({ email: req.body.assigned_to });
+        const task = new Task({ ...req.body, assigned_to: user._id });
         const savedTask = await task.save();
         res.send(savedTask);
     } catch (error) {
@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
 
 // Get tasks by project
 router.get('/project/:projectId', async (req, res) => {
-    try {        
+    try {
         const tasks = await Task.find({ project_id: req.params.projectId })
             .populate('assigned_to'); // Populate the 'assigned_to' field with the entire User document
 
@@ -192,17 +192,44 @@ router.get('/:taskId/prerequisites/incomplete', async (req, res) => {
     }
 });
 
-router.get('/byMember/:assigned_to', async (req, res) => {    
+
+router.get('/byMember/:assigned_to', async (req, res) => {
+    console.log('Assigned To',req.params.assigned_to);
     try {
-        const tasks = await Task.find({
-            assigned_to: req.params.assigned_to,  // Use req.params.assigned_to here
-        })
-            .sort({ end_date: 1 })
-            .lean()
-            .exec();
+        
+        const assignedTo = req.params.assigned_to;
+        const searchQuery = req.query.searchText || ''; // Get the search query from the request query parameters
+        const statusFilter = req.query.status; // Get the status filter from the request query parameters
+
+        // Initialize the filter with the search conditions
+        let filter = {
+            $and: [
+                { assigned_to: assignedTo }, 
+                {
+                    $or: [
+                        { name: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search in the 'name' field
+                        { description: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search in the 'description' field
+                    ]
+                }
+            ]
+        };
+
+        // If a status filter is provided, add it to the filter
+        if (statusFilter) {
+            filter.status = statusFilter;
+        }
+
+        console.log(`Filter: ${JSON.stringify(filter)}`);
+
+        const tasks = await Task.find(filter)
+            .limit(10)
+            .skip((req.query.page - 1) * 10);
+
+        console.log('Tasks from server',tasks);
+
         res.json(tasks);
     } catch (error) {
-        res.status(500).json({ error: error.toString() });
+        res.status(500).json({ message: error.message });
     }
 });
 

@@ -134,9 +134,6 @@ export async function listIncompletePrerequisites(taskId) {
     }
 }
 
-
-
-
 export const deletePrerequisite = async (taskId, prerequisiteTaskId) => {
     try {
         const response = await api.delete(`/prerequisites/${taskId}/${prerequisiteTaskId}`);
@@ -179,16 +176,17 @@ export const listWorkHours = async (taskId) => {
 
 
 
-export const getTasksByMember = async () => {
+export const getTasksByMember = async (page, searchText) => {
+    console.log('getTasksByMember');
     try {
         const user = await getUserData();
-        const response = await api.get(`/tasks/byMember/${user._id}`);
-        console.log(response.data);
+        const response = await api.get(`/tasks/byMember/${user._id}`,{ params: { page, searchText } });
+        console.log("Tasks", response.data);
+        return response.data;
     } catch (error) {
         console.error('Error fetching tasks by member:', error);
     }
 };
-
 
 export const createWorkedHour = async (workedHour, email) => {
     try {
