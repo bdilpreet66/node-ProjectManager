@@ -5,6 +5,7 @@ const TaskSchema = new mongoose.Schema({
 	description: String,
 	start_date: Date,
 	end_date: Date,
+	cost: { type: Number, default: 0 },
 	assigned_to: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 	is_active: { type: Boolean, default: true },
 	status: String,

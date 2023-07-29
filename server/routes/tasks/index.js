@@ -4,6 +4,7 @@ const Prerequisite = require('../../models/Prerequisite');
 const Task = require('../../models/Task');
 const Project = require('../../models/Project');
 const User = require('../../models/User');
+const WorkHour = require('../../models/WorkHour');
 
 // Create a task
 router.post('/', async (req, res) => {
@@ -132,33 +133,49 @@ router.put('/:id/status', async (req, res) => {
 
 router.get('/work-history/:projectId', async (req, res) => {
     try {
-        const workHours = await WorkHour.find({ project: req.params.projectId, approved: true })
+        const page = parseInt(req.query.page) || 0;
+        const limit = 10; // Number of records per page
+        const skip = page > 0 ? ((page - 1) * limit) : 0;
+
+        // Get all tasks for the provided projectId
+        const tasks = await Task.find({ project_id: req.params.projectId });
+
+        let taskIds = tasks.map(task => task._id);
+
+        // Find workHours associated with any of the tasks in the project
+        const workHours = await WorkHour.find({ task_id: { $in: taskIds } })
             .populate({
-                path: 'task',
+                path: 'task_id',
                 select: 'name assigned_to'
             })
-            .populate({
-                path: 'recorded_by',
-                select: 'email hourly_rate'
-            });
+            .populate('recorded_by')
+            .skip(skip)
+            .limit(limit);
 
-        const workHistory = workHours.map(wh => ({
-            task_id: wh.task._id,
-            task_name: wh.task.name,
-            assigned_to: wh.task.assigned_to,
-            recorded_date: wh.recorded_date,
-            hours: wh.hours,
-            minutes: wh.minutes,
-            recorded_by: wh.recorded_by.email,
-            cost: (wh.recorded_by.hourly_rate * wh.hours) + (wh.recorded_by.hourly_rate * wh.minutes / 60)
+        // Group the work hours by task name
+        let workHoursByTask = {};
+        workHours.forEach(workHour => {
+            const taskName = workHour.task_id.name;
+            if (!workHoursByTask[taskName]) {
+                workHoursByTask[taskName] = [];
+            }
+            workHoursByTask[taskName].push(workHour);
+        });
+
+        // Transform workHoursByTask to an array of sections
+        const workHistorySections = Object.keys(workHoursByTask).map(taskName => ({
+            title: taskName,
+            data: workHoursByTask[taskName]
         }));
 
-        res.json(workHistory);
+        res.json(workHistorySections);
     } catch (error) {
         console.error('Error getting work history by project:', error);
         res.status(500).send({ message: 'Error getting work history by project' });
     }
 });
+
+
 
 router.get('/:taskId/prerequisites', async (req, res) => {
     const { taskId } = req.params;
@@ -200,7 +217,6 @@ router.get('/:taskId/prerequisites/incomplete', async (req, res) => {
 });
 
 router.get('/byMember/:assigned_to', async (req, res) => {
-    console.log('Assigned To',req.params.assigned_to);
     try {
         
         const assignedTo = req.params.assigned_to;
@@ -225,14 +241,10 @@ router.get('/byMember/:assigned_to', async (req, res) => {
             filter.status = statusFilter;
         }
 
-        console.log(`Filter: ${JSON.stringify(filter)}`);
-
         const tasks = await Task.find(filter)
             .populate('project_id', 'name') // populates the 'name' field from the 'Project' model
             .limit(10)
             .skip((req.query.page - 1) * 10);
-
-        console.log('Tasks from server',tasks);
 
         res.json(tasks);
     } catch (error) {
@@ -247,6 +259,7 @@ router.get('/:id', async (req, res) => {
     try {
         const taskId = req.params.id;
         const task = await Task.findById(taskId);
+        console.log(task)
 
         if (!task) {
             return res.status(404).json({ message: 'No task found with this ID.' });
