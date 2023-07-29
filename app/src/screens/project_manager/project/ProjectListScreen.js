@@ -74,8 +74,13 @@ const ProjectListScreen = () => {
 
 		try {
 			const newProjects = await listProjects(cur_page, searchText, sortAscending, statusFilter); // Fetch projects from the first page
-
-			setProjects((prevProjects) => [...prevProjects, ...newProjects]);
+			
+			if (cur_page == 1){
+				setProjects(newProjects);
+			} else {
+				setProjects((prevProjects) => [...prevProjects, ...newProjects]);
+			}
+			
 			setHasMore(newProjects.length > 0);
 			setPage(cur_page + 1);
 		} catch (error) {
