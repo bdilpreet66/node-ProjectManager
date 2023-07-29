@@ -3,7 +3,7 @@ import { getUserData } from './creds';
 
 import axios from 'axios';
 
-const api = axios.create({ baseURL: 'http://192.168.0.76:3000' });
+const api = axios.create({ baseURL: 'http://192.168.0.18:3000' });
 
 export const listProjects = async (page, searchText, sortOrder, status) => {
     try {        
@@ -123,6 +123,7 @@ export async function listPrerequisites(taskId) {
 
 // Function to list incomplete prerequisites for a task
 export async function listIncompletePrerequisites(taskId) {
+    console.log('listIncompletePrerequisites');
     try {
         const response = await api.get(`/tasks/${taskId}/prerequisites/incomplete`);
         return response.data;
