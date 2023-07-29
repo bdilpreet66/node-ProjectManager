@@ -1,3 +1,4 @@
+//import { param } from '../../../server/routes/tasks';
 import { getUserData } from './creds';
 
 import axios from 'axios';
@@ -173,7 +174,8 @@ export const getTasksByMember = async (page, searchText) => {
     console.log('getTasksByMember');
     try {
         const user = await getUserData();
-        const response = await api.get(`/tasks/byMember/${user._id}`);
+        const response = await api.get(`/tasks/byMember/${user._id}`,  { params: { page, searchText } });
+        return response.data;
     } catch (error) {
         console.error('Error fetching tasks by member:', error);
     }
