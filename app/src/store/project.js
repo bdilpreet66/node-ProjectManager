@@ -3,7 +3,7 @@ import { getUserData } from './creds';
 
 import axios from 'axios';
 
-const api = axios.create({ baseURL: 'http://192.168.0.18:3000' });
+const api = axios.create({ baseURL: 'http://192.168.0.76:3000' });
 
 export const listProjects = async (page, searchText, sortOrder, status) => {
     try {        
@@ -86,9 +86,9 @@ export const getTasksByProject = async (projectId) => {
 };
 
 // Function to get work history by project id
-export async function getWorkHistoryByProjectId(projectId) {
+export async function getWorkHistoryByProjectId(page = 0, projectId) {
     try {
-        const response = await api.get(`/tasks/work-history/${projectId}`);
+        const response = await api.get(`/tasks/work-history/${projectId}?page=${page}`);
         return response.data;
     } catch (error) {
         console.error('Error getting work history by project:', error);
@@ -123,7 +123,6 @@ export async function listPrerequisites(taskId) {
 
 // Function to list incomplete prerequisites for a task
 export async function listIncompletePrerequisites(taskId) {
-    console.log('listIncompletePrerequisites');
     try {
         const response = await api.get(`/tasks/${taskId}/prerequisites/incomplete`);
         return response.data;
@@ -161,9 +160,10 @@ export const addTaskComment = async (comment, taskId) => {
 
 
 
-export const listWorkHours = async (taskId) => {
+export const listWorkHours = async (page, taskId) => {
     try {
-        const response = await api.get(`/workHours/${taskId}`);
+        const response = await api.get(`/workHours/${taskId}`, { params: { page: page }});
+        return response.data;
     } catch (error) {
         console.error('Error fetching work hours:', error);
     }
@@ -172,7 +172,6 @@ export const listWorkHours = async (taskId) => {
 
 
 export const getTasksByMember = async (page, searchText) => {
-    console.log('getTasksByMember');
     try {
         const user = await getUserData();
         const response = await api.get(`/tasks/byMember/${user._id}`,  { params: { page, searchText } });
@@ -182,11 +181,11 @@ export const getTasksByMember = async (page, searchText) => {
     }
 };
 
-export const createWorkedHour = async (workedHour, email) => {
+export const createWorkedHour = async (workedHour) => {
     try {
-        const response = await api.post(`/workHours`, { ...workedHour, email });
+        await api.post(`/workHours`, workedHour);
     } catch (error) {
-        console.error('Error creating worked hour:', error);
+        throw Error('Error creating worked hour');
     }
 };
 

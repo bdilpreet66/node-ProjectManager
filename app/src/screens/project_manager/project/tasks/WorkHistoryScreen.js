@@ -3,7 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity }
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import commonStyles from '../../../../theme/commonStyles';
 import theme from '../../../../theme/theme';
-import { listWorkHours, approveWorkHour, deleteWorkHours } from '../../../../store/project';
+import { listWorkHours, approveWorkHour, disapproveWorkHour } from '../../../../store/project';
 import { Ionicons } from '@expo/vector-icons';
 
 const WorkHistoryModal = () => {
@@ -33,7 +33,7 @@ const WorkHistoryModal = () => {
     setLoading(true);
   
     try {
-      const newHours = await listWorkHours(cur_page, task.id); // Fetch projects from the first page
+      const newHours = await listWorkHours(cur_page, task); // Fetch projects from the first page
   
       setWorkHistory((prevProjects) => [...prevProjects, ...newHours]);
       setHasMore(newHours.length > 0);
@@ -57,7 +57,7 @@ const WorkHistoryModal = () => {
     setWorkHistory([]);
     setPage(1);
     setHasMore(true);
-    await deleteWorkHours(id);
+    await disapproveWorkHour(id);
     await loadHours(1);
   }
 
@@ -73,16 +73,16 @@ const WorkHistoryModal = () => {
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text>Total Cost</Text>
-          <Text>$ {item.cost}</Text>
+          <Text>$ {(item.hours * item.rate) + (item.minutes/60 * item.rate)}</Text>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text>Added By</Text>
-        <Text>{item.recorded_by}</Text>
+        <Text>{(item.recorded_by.first_name != "") ? item.recorded_by.first_name + " " + item.recorded_by.last_name: item.recorded_by.email}</Text>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 25 }}>
         {item.approved ? (
           <>
-            <TouchableOpacity onPress={() => {deleteHours(item.id)}}>
+            <TouchableOpacity onPress={() => {deleteHours(item._id)}}>
               <Text style={{ color: "red" }}>undo</Text>
             </TouchableOpacity>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -91,7 +91,7 @@ const WorkHistoryModal = () => {
             </View>
           </>
         ) : (
-          <TouchableOpacity style={[commonStyles.button, commonStyles.buttonPrimary, styles.button]} onPress={() => {approveHours(item.id)}}>
+          <TouchableOpacity style={[commonStyles.button, commonStyles.buttonPrimary, styles.button]} onPress={() => {approveHours(item._id)}}>
             <Text style={[commonStyles.buttonText, commonStyles.buttonTextPrimary]}>Approve</Text>
           </TouchableOpacity>
         )}
@@ -120,8 +120,8 @@ const WorkHistoryModal = () => {
             <FlatList
                 data={workHistory}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()} // Assuming each member has a unique ID
-                onEndReached={loadHours} // Load more projects when reaching the end of the list
+                keyExtractor={(item) => item._id.toString()} // Assuming each member has a unique ID
+                onEndReached={()=> {loadHours()}} // Load more projects when reaching the end of the list
                 onEndReachedThreshold={0.1} // Trigger the onEndReached callback when 10% of the list is reached
                 ListFooterComponent={renderFooter} 
             />

@@ -90,7 +90,7 @@ const ViewProjectScreen = () => {
           </View>            
           <View style={[styles.staticContent]}>
             <Text style={[commonStyles.inputLabel]}>$ {parseFloat(projectData.total_cost).toFixed(2)}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Work History',{ projectId: projectData.id } )}>
+            <TouchableOpacity onPress={() => navigation.navigate('Work History',{ projectId: projectData._id } )}>
               <Text style={[commonStyles.link,commonStyles.underline]}>View Logs</Text>
             </TouchableOpacity>            
           </View>

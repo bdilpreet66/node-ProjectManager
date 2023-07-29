@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const WorkHistoryModal = () => {
   const route = useRoute();
-  const { task } = route.params;
+  const { task, status } = route.params;
   const navigation = useNavigation();
 
   const [loading, setLoading] = useState(false);
@@ -32,9 +32,9 @@ const WorkHistoryModal = () => {
     setLoading(true);
   
     try {
-      const newHours = await listWorkHours(page, task.id); // Fetch projects from the first page
+      const newHours = await listWorkHours(page, task); // Fetch projects from the first page
   
-      setWorkHistory((prevProjects) => [...prevProjects, ...newHours]);
+      setWorkHistory((prevhours) => [...prevhours, ...newHours]);
       setHasMore(newHours.length > 0);
       setPage((prevPage) => prevPage + 1);
     } catch (error) {
@@ -56,11 +56,11 @@ const WorkHistoryModal = () => {
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text>Total Cost</Text>
-          <Text>$ {item.cost}</Text>
+          <Text>$ {(item.hours * item.rate) + (item.minutes/60 * item.rate)}</Text>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text>Added By</Text>
-        <Text>{item.recorded_by}</Text>
+        <Text>{(item.recorded_by.first_name != "") ? item.recorded_by.first_name + " " + item.recorded_by.last_name: item.recorded_by.email}</Text>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 25 }}>
         {item.approved ? (
@@ -97,8 +97,8 @@ const WorkHistoryModal = () => {
                 <Ionicons name="close-outline" style={{color:'#D85151'}} size={36} />
             </TouchableOpacity>      
             <Text style={[commonStyles.labelTopNavHeading,commonStyles.bold]}>Worked Hours</Text>
-            {task.status !== "completed" ? (
-                <TouchableOpacity onPress={() => navigation.navigate('Add Worked Hours', { task: task })}>
+            {status !== "completed" ? (
+                <TouchableOpacity onPress={() => navigation.navigate('Add Worked Hours', { task })}>
                   <Ionicons name="add-outline" style={{color:'#34A654'}} size={36} />
                 </TouchableOpacity>
               ) : <Text></Text>}
@@ -107,8 +107,8 @@ const WorkHistoryModal = () => {
             <FlatList
                 data={workHistory}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()} // Assuming each member has a unique ID
-                onEndReached={loadHours} // Load more projects when reaching the end of the list
+                keyExtractor={(item) => item._id.toString()} // Assuming each member has a unique ID
+                onEndReached={() => {loadHours}} // Load more projects when reaching the end of the list
                 onEndReachedThreshold={0.1} // Trigger the onEndReached callback when 10% of the list is reached
                 ListFooterComponent={renderFooter} 
             />

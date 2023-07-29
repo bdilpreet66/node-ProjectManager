@@ -248,8 +248,8 @@ const ViewTaskScreen = () => {
 						<Text style={commonStyles.inputLabel}>Total Cost</Text>
 					</View>
 					<View style={[styles.staticContent]}>
-						<Text style={[commonStyles.inputLabel]}>$ {totalCost}</Text>
-						<TouchableOpacity onPress={() => navigation.navigate('Task Work History', { task: task })}>
+						<Text style={[commonStyles.inputLabel]}>$ {task.cost}</Text>
+						<TouchableOpacity onPress={() => navigation.navigate('Task Work History', { task: task._id })}>
 							<Text style={[commonStyles.link, commonStyles.underline]}>View Logs</Text>
 						</TouchableOpacity>
 					</View>

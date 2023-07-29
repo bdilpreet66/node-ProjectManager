@@ -6,6 +6,7 @@ import commonStyles from '../../../../theme/commonStyles';
 import theme from '../../../../theme/theme';
 import { createWorkedHour } from '../../../../store/project';
 import { Ionicons } from '@expo/vector-icons';
+import { getUserData } from "../../../../store/creds"
 
 const AddWorkedHourScreen = () => {
     const route = useRoute();
@@ -17,7 +18,6 @@ const AddWorkedHourScreen = () => {
     const [recordedDate, setRecordedDate] = useState(new Date());
   
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [isApproved, setIsApproved] = useState(0);
   
     const handleCreateWorkedHour = async () => {
         if (hours <= 0 && minutes <= 0) {
@@ -34,13 +34,16 @@ const AddWorkedHourScreen = () => {
           Alert.alert('Error','You cannot record more hours than 24.');
             return;
         }
+
+        let user = await getUserData();
   
         const workedHour = {
             hours: parseInt(hours),
             minutes: parseInt(minutes),
             recorded_date: recordedDate.toISOString(),
             approved: 0,
-            task_id: task.id // Use actual user email here.
+            recorded_by: user.email,
+            task_id: task // Use actual user email here.
         };
     
         try {

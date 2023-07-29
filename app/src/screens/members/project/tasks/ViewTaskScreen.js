@@ -4,8 +4,7 @@ import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/nativ
 import commonStyles from '../../../../theme/commonStyles';
 import theme from '../../../../theme/theme';
 import { Picker } from '@react-native-picker/picker';
-import { getAllUsers } from '../../../../store/user';
-import { updateTask, listPrerequisites, addTaskComment, getTaskComments, calculateWorkedHour, getTaskById } from '../../../../store/project';
+import { updateTask, addTaskComment, getTaskComments, calculateWorkedHour, getTaskById } from '../../../../store/project';
 import { Ionicons } from '@expo/vector-icons';
 import { statusBadge } from '../../../../common/Status';
 
@@ -22,51 +21,19 @@ const ViewTaskScreen = () => {
 		is_active: true,
 		status: "pending",
 		project_id: "",
+		cost: 0.00
 	});
 	const navigation = useNavigation();
-
-	const [showStartPicker, setShowStartPicker] = useState(false);
-	const [showEndPicker, setShowEndPicker] = useState(false);
-	const [users, setUsers] = useState([]);
-	const [preReq, setRreReq] = useState([]);
-	const [totalCost, setTotalCost] = useState('0.00');
 
 	const [comment, setComment] = useState();
 	const [comments, setComments] = useState([]);
 
 	useFocusEffect(
 		useCallback(() => {
-			const fetchPreReq = async () => {
-				try{
-					const results = await listPrerequisites(taskid);
-					setRreReq(results);
-				} catch(error) {
-					console.log(error)
-				}
-			};
-
-			const fetchUsers = async () => {
-				try{
-					const results = await getAllUsers();
-					setUsers(results);
-				} catch(error) {
-					console.log(error)
-				}
-			};
-
 			const fetchComments = async () => {
 				try{
 					const results = await getTaskComments(taskid);
 					setComments(results);
-				} catch(error) {
-					console.log(error)
-				}
-			};
-
-			const fetchTotalCost = async () => {
-				try{
-					const results = await calculateWorkedHour(taskid);
-					setTotalCost(results);
 				} catch(error) {
 					console.log(error)
 				}
@@ -85,28 +52,12 @@ const ViewTaskScreen = () => {
 			};
 
 			fetchTaskDetails();
-			fetchUsers();
-			fetchPreReq();
 			fetchComments();
-			fetchTotalCost();
 
 		}, [])
 	);
 
 	const handleUpdateTask = async () => {
-		// Validate that start date is before end date
-		if (!task.name || !task.description) {
-			// Handle case when email is empty
-			Alert.alert('Error', 'Please complete the form before submit.');
-			return;
-		}
-
-		if (task.startDate > task.endDate) {
-			Alert.alert('Error', 'Start date should be before end date.');
-			return;
-		}
-
-
 		try {
 			// Create the task in the database
 			await updateTask(task);
@@ -179,18 +130,10 @@ const ViewTaskScreen = () => {
 						<Text style={commonStyles.inputLabel}>Total Cost</Text>
 					</View>
 					<View style={[styles.staticContent]}>
-						<Text style={[commonStyles.inputLabel]}>$ {totalCost}</Text>
-						<TouchableOpacity onPress={() => navigation.navigate('Task Work History', { task: task })}>
+						<Text style={[commonStyles.inputLabel]}>$ {task.cost}</Text>
+						<TouchableOpacity onPress={() => navigation.navigate('View Worked Hours', { task: task._id, status: task.status })}>
 							<Text style={[commonStyles.link, commonStyles.underline]}>View Logs</Text>
 						</TouchableOpacity>
-					</View>
-					<View style={styles.inputContainer}>
-						<Text style={commonStyles.inputLabel}>Prerequisite</Text>
-					</View>
-					<View style={[styles.staticContent]}>
-						<View style={[styles.prereqContainer]}>
-							{preReq.map((preitem, index) => <Text key={index} style={[commonStyles.badge, commonStyles.badgeGrey, styles.badge]}>{preitem}</Text>)}
-						</View>						
 					</View>
 					<View style={styles.inputContainer}>
 						<Text style={commonStyles.inputLabel}>Comments</Text>
