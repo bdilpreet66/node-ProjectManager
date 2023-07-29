@@ -7,7 +7,6 @@ router.get('/:taskId', async (req, res) => {
     try {
         const { taskId } = req.params;
         const taskComments = await TaskComment.find({ task_id: taskId }).sort({ id: -1 }).populate('commented_by');
-        console.log(taskComments);
         const formattedComments = taskComments.map((comment) => {
             let user = comment.commented_by;
             user = user.first_name
@@ -15,7 +14,6 @@ router.get('/:taskId', async (req, res) => {
                 : user.email;
             return { ...comment._doc, commented_by: user, comment_date: comment.formatted_comment_date  };
         });
-        console.log(formattedComments);
         res.json(formattedComments); // Send the formattedComments array in the response
     } catch (error) {
         res.status(500).json({ error: error.toString() });
@@ -27,7 +25,6 @@ router.post('/', async (req, res) => {
     try {
         const { task_id, comment, commented_by } = req.body;
         const newTaskComment = new TaskComment({ task_id, comment, comment_date: Date.now(), commented_by });
-        console.log(newTaskComment);
         await newTaskComment.save();
         res.json({ message: 'Task comment inserted successfully.' });
     } catch (error) {

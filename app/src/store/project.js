@@ -2,7 +2,7 @@ import { getUserData } from './creds';
 
 import axios from 'axios';
 
-const api = axios.create({ baseURL: 'http://192.168.0.18:3000' });
+const api = axios.create({ baseURL: 'http://192.168.0.76:3000' });
 
 export const listProjects = async (page, searchText, sortOrder, status) => {
     try {        
@@ -45,7 +45,6 @@ export const createTask = async (task) => {
 };
 
 export const getAvailableTasks = async (projectId, currentTaskId) => {
-    console.log(`/tasks/available/${projectId}/${currentTaskId}`)
     try {
         const response = await api.get(`/tasks/available/${projectId}/${currentTaskId}`);
         return response.data;
@@ -56,7 +55,6 @@ export const getAvailableTasks = async (projectId, currentTaskId) => {
 };
 
 export const updateTask = async (task) => {
-    console.log('umabot ba tioy');
     try {
         const response = await api.put(`/tasks/${task._id}`, task);
         return response.data;
@@ -102,7 +100,6 @@ export async function createPrerequisite(data) {
         const response = await api.post('/prerequisites', data);
         return response.data;
     } catch (error) {
-        console.log(error)
         if (error.response) {
             // The request was made and the server responded with a status code
             throw new Error(error.response.data.message);
@@ -116,7 +113,6 @@ export async function createPrerequisite(data) {
 // Function to list prerequisites for a task
 export async function listPrerequisites(taskId) {
     try {
-        console.log(taskId)
         const response = await api.get(`/tasks/${taskId}/prerequisites`);
         return response.data;
     } catch (error) {
@@ -137,7 +133,6 @@ export async function listIncompletePrerequisites(taskId) {
 export const deletePrerequisite = async (taskId, prerequisiteTaskId) => {
     try {
         const response = await api.delete(`/prerequisites/${taskId}/${prerequisiteTaskId}`);
-        console.log(response.data.message);
     } catch (error) {
         console.error('Error deleting prerequisite:', error);
     }
@@ -157,7 +152,6 @@ export const addTaskComment = async (comment, taskId) => {
     const user = await getUserData();
     try {
         const response = await api.post(`/taskComments`, { task_id: taskId, comment, commented_by: user._id });
-        console.log(response.data.message);
     } catch (error) {
         console.error('Error inserting task comment:', error);
     }
@@ -168,7 +162,6 @@ export const addTaskComment = async (comment, taskId) => {
 export const listWorkHours = async (taskId) => {
     try {
         const response = await api.get(`/workHours/${taskId}`);
-        console.log(response.data);
     } catch (error) {
         console.error('Error fetching work hours:', error);
     }
@@ -180,9 +173,7 @@ export const getTasksByMember = async (page, searchText) => {
     console.log('getTasksByMember');
     try {
         const user = await getUserData();
-        const response = await api.get(`/tasks/byMember/${user._id}`,{ params: { page, searchText } });
-        console.log("Tasks", response.data);
-        return response.data;
+        const response = await api.get(`/tasks/byMember/${user._id}`);
     } catch (error) {
         console.error('Error fetching tasks by member:', error);
     }
@@ -191,7 +182,6 @@ export const getTasksByMember = async (page, searchText) => {
 export const createWorkedHour = async (workedHour, email) => {
     try {
         const response = await api.post(`/workHours`, { ...workedHour, email });
-        console.log(response.data.message);
     } catch (error) {
         console.error('Error creating worked hour:', error);
     }
@@ -211,7 +201,6 @@ export const calculateWorkedHour = async (taskId) => {
 export const approveWorkHour = async (workHourId) => {
     try {
         const response = await api.patch(`/workHours/approve/${workHourId}`);
-        console.log(response.data.message);
     } catch (error) {
         console.error('Error approving work hour:', error);
     }
@@ -220,7 +209,6 @@ export const approveWorkHour = async (workHourId) => {
 export const disapproveWorkHour = async (workHourId) => {
     try {
         const response = await api.patch(`/workHours/disapprove/${workHourId}`);
-        console.log(response.data.message);
     } catch (error) {
         console.error('Error disapproving work hour:', error);
     }
@@ -266,7 +254,6 @@ export const getProjectSummaryByMember = async () => {
     try {
         const user = await getUserData();
         const response = await api.get(`/projects/getProjectSummaryByMember/${user._id}`);
-        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error('Error getting member summary:', error);
@@ -276,8 +263,7 @@ export const getProjectSummaryByMember = async () => {
 
 
 export const getProjectDetails = async (projectId) => {
-    try {
-        console.log(`Thsi is the project id: ${projectId}`);        
+    try {   
         const response = await api.get(`/projects/getbyid/${projectId}`);
         return response.data;
     } catch (error) {

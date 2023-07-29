@@ -103,7 +103,7 @@ const ProjectListScreen = () => {
 				{item.status == "pending" ?
 					<Text style={[commonStyles.badge, commonStyles.badgeWarning, styles.badge]}>{item.status}</Text> :
 					(item.status == "in-progress" ?
-						<Text style={[commonStyles.badge, commonStyles.badgeWarning, styles.badge]}>{item.status}</Text> :
+						<Text style={[commonStyles.badge, commonStyles.badgeInfo, styles.badge]}>{item.status}</Text> :
 						<Text style={[commonStyles.badge, commonStyles.badgeSuccess, styles.badge]}>{item.status}</Text>
 					)
 				}

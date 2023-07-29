@@ -7,7 +7,6 @@ const User = require('../../models/User');
 const TaskComment = require('../../models/TaskComment');
 
 router.get('/', async (req, res) => { 
-    console.log(req.query);
    
     try {
         const searchQuery = req.query.searchText; // Get the search query from the request query parameters
@@ -32,15 +31,24 @@ router.get('/', async (req, res) => {
             }
         }
 
-        console.log(`Filter:${JSON.stringify(filter)}`);
         const projects = await Project.find(filter)
             .sort({ total_cost: Number(sortOrder) })
             .limit(10)
             .skip((req.query.page - 1) * 10);
+       
 
-        console.log(projects);            
+        const formattedProjects = projects.map((project) => {
+            return {
+                ...project.toObject(),
+                completion_date: project.completion_date.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                }),
+            };
+        });
 
-        res.json(projects);
+        res.json(formattedProjects);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -238,13 +246,11 @@ router.get('/getProjectSummaryByMember/:assigned_to', async (req, res) => {
 router.get('/getbyid/:id', async (req, res) => {    
     try {
         const projectId = req.params.id;
-        console.log(`projectId: ${projectId}`);
         const project = await Project.findById(projectId);
 
         if (!project) {
             return res.status(404).json({ message: 'No project found with this ID.' });
         }
-        console.log(`project: ${project}`);
         res.json(project);
     } catch (err) {
         console.error(`Error fetching project with ID ${projectId}:`, err);

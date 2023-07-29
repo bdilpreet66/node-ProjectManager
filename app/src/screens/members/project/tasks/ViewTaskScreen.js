@@ -14,7 +14,6 @@ const ViewTaskScreen = () => {
   const route = useRoute();
   const { task } = route.params;
   const navigation = useNavigation();
-  console.log(task)
   
   const [id, _] = useState(task.id);
   const [name, setName] = useState(task.name);

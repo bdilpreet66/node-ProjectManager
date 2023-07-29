@@ -10,7 +10,6 @@ const Splash = ({navigation}) => {
   const checkLoggedInUser = async () => {
     // Check if there is a logged-in user in AsyncStorage or any other storage mechanism    
     const user = await getUserData();
-    console.log(user);
 
     // Redirect to appropriate screen
     if (user != null) {

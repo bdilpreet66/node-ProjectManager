@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const Prerequisite = require('../../models/Prerequisite');
 const Task = require('../../models/Task');
 const Project = require('../../models/Project');
 const User = require('../../models/User');
-const { use } = require('../users');
 
 // Create a task
 router.post('/', async (req, res) => {
@@ -50,7 +50,6 @@ router.get('/project/:projectId', async (req, res) => {
 // Update a task
 
 router.put('/:id', async (req, res) => {
-    console.log(req.body)
     try {
         // Find user by email
         const user = await User.findOne({ _id: req.body.assigned_to });
@@ -60,7 +59,6 @@ router.put('/:id', async (req, res) => {
 
         // Assign user._id to assigned_to
         req.body.assigned_to = user._id;
-        console.log(req.body)
         const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body);
         if (updatedTask) {
             const tasks = await Task.find({ project_id: updatedTask.project_id });
@@ -163,10 +161,20 @@ router.get('/work-history/:projectId', async (req, res) => {
 });
 
 router.get('/:taskId/prerequisites', async (req, res) => {
+    const { taskId } = req.params;
     try {
-        const prerequisites = await Prerequisite.find({ task: req.params.taskId });
+        const prerequisites = await Prerequisite.find({ task_id: taskId });
 
-        res.send(prerequisites);
+        // Extract the prerequisite task IDs from the results
+        const prerequisiteTaskIds = prerequisites.map((prerequisite) => prerequisite.prerequisite_task_id);
+
+        // Find the names of the prerequisite tasks using the extracted IDs
+        const prerequisiteTasks = await Task.find({ _id: { $in: prerequisiteTaskIds } });
+
+        // Extract and return the names of the prerequisite tasks
+        const prerequisiteTaskNames = prerequisiteTasks.map((task) => task.name);
+
+        res.json(prerequisiteTaskNames);
     } catch (error) {
         console.error('Error listing prerequisites:', error);
         res.status(500).send({ message: 'Error listing prerequisites' });
@@ -238,17 +246,61 @@ router.get('/byMember/:assigned_to', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const taskId = req.params.id;
-        console.log(`taskId: ${taskId}`);
         const task = await Task.findById(taskId);
 
         if (!task) {
             return res.status(404).json({ message: 'No task found with this ID.' });
         }
-        console.log(`task: ${task}`);
         res.json(task);
     } catch (err) {
         console.error(`Error fetching task with ID ${taskId}:`, err);
         res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+
+router.get('/available/:projectId/:currentTaskId', async (req, res) => {
+    const { projectId, currentTaskId } = req.params;
+
+    try {
+        // Find all tasks that have the same project_id as the given projectId
+        // and exclude the task with the currentTaskId
+        const tasks = await Task.find({
+            project_id: projectId,
+            _id: { $ne: currentTaskId },
+        });
+
+        // Prepare the list of available tasks with additional information
+        const availableTasks = await Promise.all(tasks.map(async (task) => {
+            const prerequisiteExists = await Prerequisite.exists({
+                prerequisite_task_id: currentTaskId,
+                task_id: task._id,
+            });
+
+            // If prerequisiteExists is true, skip this task
+            if (prerequisiteExists) {
+                return null;
+            } else {
+                const isCurrentTaskPrerequisite = await Prerequisite.exists({
+                    prerequisite_task_id: task._id,
+                    task_id: currentTaskId,
+                });
+
+                return {
+                    id: task._id,
+                    name: task.name,
+                    isPreReq: isCurrentTaskPrerequisite,
+                };
+            }
+        }));
+
+        // Remove any null values from the availableTasks array
+        const filteredAvailableTasks = availableTasks.filter((task) => task !== null);
+
+        res.json(filteredAvailableTasks);
+    } catch (error) {
+        console.error('Error getting available tasks:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 

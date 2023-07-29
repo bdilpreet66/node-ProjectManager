@@ -33,7 +33,6 @@ const ProjectListScreen = () => {
   
     try {
       const newTasks = await getTasksByMember(cur_page, searchText); // Fetch tasks from the first page
-      console.log('NewTasks', newTasks);
       setTasks((prevTasks) => [...prevTasks, ...newTasks]);
       //setHasMore(newTasks.length > 0);
       setHasMore(false);
