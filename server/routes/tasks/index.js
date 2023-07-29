@@ -259,7 +259,6 @@ router.get('/:id', async (req, res) => {
     try {
         const taskId = req.params.id;
         const task = await Task.findById(taskId);
-        console.log(task)
 
         if (!task) {
             return res.status(404).json({ message: 'No task found with this ID.' });

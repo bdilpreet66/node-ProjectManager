@@ -28,9 +28,7 @@ const DashboardScreen = () => {
   );
 
   const handleTaskView = async (task) => {
-    console.log("handleTaskView");
     const prerequisitesData = await listIncompletePrerequisites(task._id);
-    console.log("prerequisitesData",prerequisitesData);
     if (prerequisitesData.length > 0) {
         Alert.alert('Message', 'This task is not allowed to view as it has an incomplete pre-requisite.');
     }

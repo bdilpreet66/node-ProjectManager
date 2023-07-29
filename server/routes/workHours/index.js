@@ -32,7 +32,6 @@ router.post('/', async (req, res) => {
         await newWorkHour.save();
         res.json({ message: 'Worked hour created successfully.' });
     } catch (error) {
-        console.log(error)
         res.status(500).json({ error: error.toString() });
     }
 });

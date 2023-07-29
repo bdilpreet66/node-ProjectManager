@@ -120,7 +120,6 @@ router.get('/getInprogressOverdueTasks/:assigned_to', async (req, res) => {
             .populate('project_id', 'name') // This line populates the 'name' field from the 'Project' model referenced by 'project_id'
             .lean()
             .exec();
-        console.log('Tasks',tasks);
         res.json(tasks);
     } catch (error) {
         res.status(500).json({ error: error.toString() });
