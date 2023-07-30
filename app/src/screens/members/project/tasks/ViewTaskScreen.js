@@ -70,10 +70,12 @@ const ViewTaskScreen = () => {
 	}
 
 	const handleAddComment = async () => {
-		await addTaskComment(comment, task._id);
-		const results = await getTaskComments(task._id);
-		setComments(results);
-		setComment('');
+    if (comment !== undefined) {
+      await addTaskComment(comment, task._id);
+      const results = await getTaskComments(task._id);
+      setComments(results);
+      setComment('');
+    }
 	}
 
 	return (
@@ -130,7 +132,7 @@ const ViewTaskScreen = () => {
 						<Text style={commonStyles.inputLabel}>Total Cost</Text>
 					</View>
 					<View style={[styles.staticContent]}>
-						<Text style={[commonStyles.inputLabel]}>$ {task.cost}</Text>
+						<Text style={[commonStyles.inputLabel]}>$ {parseFloat(task.cost).toFixed(2)}</Text>
 						<TouchableOpacity onPress={() => navigation.navigate('View Worked Hours', { task: task._id, status: task.status })}>
 							<Text style={[commonStyles.link, commonStyles.underline]}>View Logs</Text>
 						</TouchableOpacity>

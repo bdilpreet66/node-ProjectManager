@@ -56,7 +56,7 @@ const WorkHistoryModal = () => {
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text>Total Cost</Text>
-          <Text>$ {(item.hours * item.rate) + (item.minutes/60 * item.rate)}</Text>
+          <Text>$ {parseFloat((item.hours * item.rate) + (item.minutes/60 * item.rate)).toFixed(2)}</Text>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text>Added By</Text>
@@ -137,8 +137,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',    
     paddingTop: 60,    
-    backgroundColor: theme.colors.white,
-    paddingHorizontal: 20,
+    backgroundColor: theme.colors.white,    
     marginBottom: 30,
   },
   listItem: {

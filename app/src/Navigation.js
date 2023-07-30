@@ -125,7 +125,9 @@ function MemberDashboardStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Project List" component={MDashboardScreen} />
-      <Stack.Screen name="View Task" component={MViewTaskScreen} />      
+      <Stack.Screen name="View Task" component={MViewTaskScreen} /> 
+      <Stack.Screen name="View Worked Hours" component={MWorkedHourList} />     
+      <Stack.Screen name="Add Worked Hours" component={MAddWorkedHours} />
     </Stack.Navigator>
   );
 }
@@ -134,7 +136,12 @@ function ProjectManagerDashboardStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="PmDashboard" component={PmDashboardScreen} /> 
-      <Stack.Screen name="View Project" component={PmViewProjectScreen} />
+      <Stack.Screen name="View Project" component={PmViewProjectScreen} />      
+      <Stack.Screen name="View Task" component={PmViewTaskScreen} />
+      <Stack.Screen name="Work History" component={PmHistoryScreen} />      
+      <Stack.Screen name="Create Task" component={PmCreateTaskScreen} />      
+      <Stack.Screen name="Pre Req Task" component={PmPreReqTaskScreen} />
+      <Stack.Screen name="Task Work History" component={PmTaskHistoryScreen} />
     </Stack.Navigator>
   );
 }

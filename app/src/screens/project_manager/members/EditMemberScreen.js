@@ -42,8 +42,8 @@ const EditMemberScreen = () => {
   };
 
   const handleSetHours = async () => {
-    if (!user.hourly_rate) {
-      Alert.alert('Error','Please enter Hourly Rate.');
+    if (!user.hourly_rate || !user.first_name || !user.last_name || !user.job_title) {
+      Alert.alert('Error','Please fill in all fields.');
       return;
     }
 
@@ -161,7 +161,7 @@ const EditMemberScreen = () => {
         </View>
         {user.type != "admin" &&
           (
-            <TouchableOpacity style={[commonStyles.button, commonStyles.buttonError, styles.deleteButton]} onPress={handleDeleteUser}>
+            <TouchableOpacity style={[commonStyles.button, styles.deleteButton]} onPress={handleDeleteUser}>
               <Text style={[commonStyles.buttonText, commonStyles.buttonTexError]}>Delete User</Text>
             </TouchableOpacity>
           )
@@ -214,7 +214,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   deleteButton: {
-    bottom: 10
+    bottom: 10,
+    backgroundColor: theme.colors.pink,
   }
 });
 

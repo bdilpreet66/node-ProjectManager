@@ -23,7 +23,7 @@ const CreateMemberPage = () => {
 	};
 
 	const handleSave = async () => {
-		if (!email || !password || !hourlyRate) {
+		if (!email || !password || !hourlyRate || !firstName || !lastName || !jobTitle) {
 			Alert.alert('Error', 'Please fill in all fields.');
 			return;
 		}
@@ -103,6 +103,7 @@ const CreateMemberPage = () => {
 						value={email}
 						autoCapitalize='none'
 						keyboardType='email-address'
+						maxLength={50}
 					/>
 				</View>
 				<View style={commonStyles.inputContainer}>
@@ -112,6 +113,7 @@ const CreateMemberPage = () => {
 						onChangeText={setPassword}
 						value={password}
 						autoCapitalize='none'
+						maxLength={50}
 					/>
 				</View>
 				<View style={commonStyles.inputContainer}>
@@ -120,6 +122,7 @@ const CreateMemberPage = () => {
 						style={styles.input}
 						onChangeText={setFirstName}
 						value={firstName}
+						maxLength={255}
 					/>
 				</View>
 				<View style={commonStyles.inputContainer}>
@@ -128,6 +131,7 @@ const CreateMemberPage = () => {
 						style={styles.input}
 						onChangeText={setLastName}
 						value={lastName}
+						maxLength={255}
 					/>
 				</View>
 				<View style={commonStyles.inputContainer}>
@@ -136,6 +140,7 @@ const CreateMemberPage = () => {
 						style={styles.input}
 						onChangeText={setJobTitle}
 						value={jobTitle}
+						maxLength={255}
 					/>
 				</View>
 				<View style={[commonStyles.inputContainer, { marginBottom: 20 }]}>

@@ -54,10 +54,15 @@ const MemberListScreen = () => {
 				justifyContent: 'space-between',
 				alignItems: 'center',
 			}}>
-				<Text>{item.email}</Text>
+				<Text>{item.first_name} {item.last_name}</Text>				
 				<Text>Hourly Rate - ${item.hourly_rate}</Text>
 			</View>
-			<View>
+			<View style={{
+				flexDirection: 'row',
+				justifyContent: 'space-between',
+				alignItems: 'center',
+			}}>
+				<Text>{item.email}</Text>
 				{item.type == "admin" ?
 					<Text style={[commonStyles.badge, commonStyles.badgeSuccess, styles.badge]}>{item.type}</Text> :
 					<Text style={[commonStyles.badge, commonStyles.badgeDefault, styles.badge]}>{item.type}</Text>

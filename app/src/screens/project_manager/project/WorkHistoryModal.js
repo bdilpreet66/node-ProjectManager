@@ -73,7 +73,7 @@ const WorkHistoryModal = () => {
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text>Total Cost</Text>
-          <Text>$ {(item.hours * item.rate) + (item.minutes/60 * item.rate)}</Text>
+          <Text>$ {parseFloat((item.hours * item.rate) + (item.minutes/60 * item.rate)).toFixed(2)}</Text>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text>Added By</Text>
@@ -128,15 +128,7 @@ const WorkHistoryModal = () => {
                 <Text style={styles.labelhidden}></Text>
             </TouchableOpacity>      
         </View>
-        <View style={styles.modalView}>
-            {/* <FlatList
-                data={workHistory}
-                renderItem={renderItem}
-                keyExtractor={(item) => item._id.toString()} // Assuming each member has a unique ID
-                onEndReached={()=> {loadHours()}} // Load more projects when reaching the end of the list
-                onEndReachedThreshold={0.1} // Trigger the onEndReached callback when 10% of the list is reached
-                ListFooterComponent={renderFooter} 
-            /> */}
+        <View style={{marginBottom:80,}}>
             <SectionList
                 sections={workHistory}
                 keyExtractor={(item) => item._id.toString()} // Use the unique ID of each work hour as the key
@@ -171,8 +163,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',    
     paddingTop: 60,    
-    backgroundColor: theme.colors.white,
-    paddingHorizontal: 20,
+    backgroundColor: theme.colors.white,    
     marginBottom: 30,
   },
   listItem: {

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Platform, ScrollView, Alert } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import commonStyles from '../../../../theme/commonStyles';
@@ -119,11 +119,13 @@ const ViewTaskScreen = () => {
 		}
 	}
 
-	const handleAddComment = async () => {
-		await addTaskComment(comment, task._id);
-		const results = await getTaskComments(task._id);
-		setComments(results);
-		setComment('');
+	const handleAddComment = async () => {		
+		if (comment !== undefined) {
+			await addTaskComment(comment, task._id);
+			const results = await getTaskComments(task._id);
+			setComments(results);
+			setComment('');
+		}		
 	}
 
 	const onStartDateChange = (selectedDate) => {
@@ -248,7 +250,7 @@ const ViewTaskScreen = () => {
 						<Text style={commonStyles.inputLabel}>Total Cost</Text>
 					</View>
 					<View style={[styles.staticContent]}>
-						<Text style={[commonStyles.inputLabel]}>$ {task.cost}</Text>
+						<Text style={[commonStyles.inputLabel]}>$ {parseFloat(task.cost).toFixed(2)}</Text>
 						<TouchableOpacity onPress={() => navigation.navigate('Task Work History', { task: task._id })}>
 							<Text style={[commonStyles.link, commonStyles.underline]}>View Logs</Text>
 						</TouchableOpacity>
@@ -380,6 +382,7 @@ const styles = StyleSheet.create({
 		marginRight: 5,
 		paddingLeft: 20,
 		paddingRight: 20,
+		marginBottom:5,
 	},
 	prereqContainer: {
 		flexDirection: 'row',
